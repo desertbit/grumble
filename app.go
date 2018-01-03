@@ -78,8 +78,8 @@ func New(c *Config) (a *App) {
 	a.Closer = closer.New(a.onClose)
 
 	// Register the builtin flags.
-	a.flags.Bool("h", "help", false, "Display help")
-	a.flags.BoolL("nocolor", false, "Disable color output")
+	a.flags.Bool("h", "help", false, "display help")
+	a.flags.BoolL("nocolor", false, "disable color output")
 
 	// Register the user flags if present.
 	if c.Flags != nil {
@@ -96,7 +96,7 @@ func (a *App) onClose() error {
 	return nil
 }
 
-// IsShell indicates, if the this is a shell session.
+// IsShell indicates, if this is a shell session.
 func (a *App) IsShell() bool {
 	return a.isShell
 }
