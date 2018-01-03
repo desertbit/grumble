@@ -45,7 +45,7 @@ type Command struct {
 	LongHelp string
 
 	// HelpGroup defines the help group headline.
-	// Note: this is only used for primary commands.
+	// Note: this is only used for primary top-level commands.
 	HelpGroup string
 
 	// Usage should define how to use the command.

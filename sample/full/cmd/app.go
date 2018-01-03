@@ -31,7 +31,7 @@ import (
 	"github.com/fatih/color"
 )
 
-var App = *grumble.New(&grumble.Config{
+var App = grumble.New(&grumble.Config{
 	Name:                  "foo",
 	Description:           "An awesome foo bar",
 	HistoryFile:           "/tmp/foo.hist",

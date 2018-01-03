@@ -30,5 +30,5 @@ import (
 )
 
 func main() {
-	grumble.Main(&cmd.App)
+	grumble.Main(cmd.App)
 }
