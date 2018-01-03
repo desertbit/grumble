@@ -49,11 +49,11 @@ var App = grumble.New(&grumble.Config{
 
 func init() {
 	App.SetPrintASCIILogo(func(a *grumble.App) {
-		fmt.Println("               _ ")
-		fmt.Println(" ___ ___ _____| |")
-		fmt.Println("| . |  _|     | |")
-		fmt.Println("|_  |_| |_|_|_|_|")
-		fmt.Println("|___|            ")
-		fmt.Println("")
+		fmt.Println("                   _   _     ")
+		fmt.Println(" ___ ___ _ _ _____| |_| |___ ")
+		fmt.Println("| . |  _| | |     | . | | -_|")
+		fmt.Println("|_  |_| |___|_|_|_|___|_|___|")
+		fmt.Println("|___|                        ")
+		fmt.Println()
 	})
 }

@@ -33,24 +33,23 @@ import (
 
 func init() {
 	App.AddCommand(&grumble.Command{
-		Name:    "flags",
-		Help:    "test flags",
-		Aliases: []string{"run"},
+		Name: "flags",
+		Help: "test flags",
 		Flags: func(f *grumble.Flags) {
 			f.Duration("d", "duration", time.Second, "duration test")
-			f.Int("i", "int", 4, "test int")
-			f.Int64("l", "int64", 4, "test int64")
-			f.Uint("u", "uint", 4, "test uint")
+			f.Int("i", "int", 1, "test int")
+			f.Int64("l", "int64", 2, "test int64")
+			f.Uint("u", "uint", 3, "test uint")
 			f.Uint64("j", "uint64", 4, "test uint64")
-			f.Float64("f", "float", 7.88, "test float64")
+			f.Float64("f", "float", 5.55, "test float64")
 		},
 		Run: func(c *grumble.Context) error {
-			fmt.Println(c.Flags.Duration("duration"))
-			fmt.Println(c.Flags.Int("int"))
-			fmt.Println(c.Flags.Int64("int64"))
-			fmt.Println(c.Flags.Uint("uint"))
-			fmt.Println(c.Flags.Uint64("uint64"))
-			fmt.Println(c.Flags.Float64("float"))
+			fmt.Println("duration ", c.Flags.Duration("duration"))
+			fmt.Println("int      ", c.Flags.Int("int"))
+			fmt.Println("int64    ", c.Flags.Int64("int64"))
+			fmt.Println("uint     ", c.Flags.Uint("uint"))
+			fmt.Println("uint64   ", c.Flags.Uint64("uint64"))
+			fmt.Println("float    ", c.Flags.Float64("float"))
 			return nil
 		},
 	})
