@@ -29,6 +29,7 @@ import (
 	"time"
 )
 
+// FlagMapItem holds the specific flag data.
 type FlagMapItem struct {
 	Value     interface{}
 	IsDefault bool

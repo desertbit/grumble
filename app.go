@@ -43,6 +43,7 @@ type App struct {
 	rl       *readline.Instance
 	config   *Config
 	commands Commands
+	isShell  bool
 
 	flags   Flags
 	flagMap FlagMap
@@ -95,6 +96,11 @@ func (a *App) onClose() error {
 	return nil
 }
 
+// IsShell indicates, if the this is a shell session.
+func (a *App) IsShell() bool {
+	return a.isShell
+}
+
 // Config returns the app's config value.
 func (a *App) Config() *Config {
 	return a.config
@@ -114,14 +120,14 @@ func (a *App) PrintError(err error) {
 	}
 }
 
-// SetInitHook sets the function which will be executed before
-// the first command is executed.
-func (a *App) SetInitHook(f func(a *App, flags FlagMap) error) {
+// OnInit sets the function which will be executed before the first command
+// is executed. App flags can be handled here.
+func (a *App) OnInit(f func(a *App, flags FlagMap) error) {
 	a.initHook = f
 }
 
-// SetShellHook sets the function which will be executed before the shell starts.
-func (a *App) SetShellHook(f func(a *App) error) {
+// OnShell sets the function which will be executed before the shell starts.
+func (a *App) OnShell(f func(a *App) error) {
 	a.shellHook = f
 }
 
@@ -222,7 +228,7 @@ func (a *App) Run() (err error) {
 	a.config.NoColor = a.flagMap.Bool("nocolor")
 
 	// Determine if this is a shell session.
-	isShell := (len(args) == 0)
+	a.isShell = (len(args) == 0)
 
 	// Add general builtin commands.
 	a.AddCommand(&Command{
@@ -231,7 +237,7 @@ func (a *App) Run() (err error) {
 		AllowArgs: true,
 		Run: func(c *Context) error {
 			if len(c.Args) == 0 {
-				a.printHelp(a, isShell)
+				a.printHelp(a, a.isShell)
 				return nil
 			}
 			cmd, _, err := a.commands.FindCommand(c.Args)
@@ -241,7 +247,7 @@ func (a *App) Run() (err error) {
 				a.PrintError(fmt.Errorf("command not found"))
 				return nil
 			}
-			a.printCommandHelp(a, cmd, isShell)
+			a.printCommandHelp(a, cmd, a.isShell)
 			return nil
 		},
 	})
@@ -260,8 +266,8 @@ func (a *App) Run() (err error) {
 		}
 	}
 
-	//  Check if a command chould be executed in non-interactive mode.
-	if len(args) > 0 {
+	// Check if a command chould be executed in non-interactive mode.
+	if !a.isShell {
 		return a.RunCommand(args)
 	}
 

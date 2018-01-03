@@ -31,12 +31,14 @@ import (
 // Command is just that, a command for your application.
 type Command struct {
 	// Command name.
+	// This field is required.
 	Name string
 
 	// Command name aliases.
 	Aliases []string
 
 	// One liner help message for the command.
+	// This field is required.
 	Help string
 
 	// More descriptive help message for the command.

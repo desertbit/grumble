@@ -31,7 +31,7 @@ import (
 )
 
 // Main is a shorthand to run the app within the main function.
-// This function will handle the error.
+// This function will handle the error and exit the application on error.
 func Main(a *App) {
 	err := a.Run()
 	if err != nil {
