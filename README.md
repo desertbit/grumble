@@ -3,12 +3,12 @@
 [![GoDoc](https://godoc.org/github.com/desertbit/grumble?status.svg)](https://godoc.org/github.com/desertbit/grumble)
 [![Go Report Card](https://goreportcard.com/badge/github.com/desertbit/grumble)](https://goreportcard.com/report/github.com/desertbit/grumble)
 
-[![asciicast](https://asciinema.org/a/155332.png)](https://asciinema.org/a/155332)
-
 There are a handful of powerful go CLI libraries available ([spf13/cobra](https://github.com/spf13/cobra), [urfave/cli](https://github.com/urfave/cli)).
 However sometimes an integrated shell interface is a great and useful extension for the actual application.
 This library offers a simple API to create powerful CLI applications and automatically starts
 an **integrated interactive shell**, if the application is started without any command arguments.
+
+[![asciicast](https://asciinema.org/a/155332.png)](https://asciinema.org/a/155332)
 
 ## Introduction
 
