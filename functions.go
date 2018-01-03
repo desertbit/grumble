@@ -109,28 +109,39 @@ func defaultPrintHelp(a *App, shell bool) {
 
 	// Sub Commands.
 	if a.config.HelpSubCommands {
-		fmt.Println()
-		printHeadline(a.config, "Sub Commands:")
-		println := headlinePrinter(a.config)
-
-		// Only print the first level of sub commands.
+		// Check if there is at least one sub command.
+		hasSubCmds := false
 		for _, c := range a.commands.list {
-			if len(c.commands.list) == 0 {
-				continue
+			if len(c.commands.list) > 0 {
+				hasSubCmds = true
+				break
 			}
-
-			var output []string
-			for _, c := range c.commands.list {
-				name := c.Name
-				for _, a := range c.Aliases {
-					name += ", " + a
-				}
-				output = append(output, fmt.Sprintf("%s | %v", name, c.Help))
-			}
-
+		}
+		if hasSubCmds {
+			// Headline.
 			fmt.Println()
-			println(c.Name + ":")
-			fmt.Printf("%s\n", columnize.Format(output, config))
+			printHeadline(a.config, "Sub Commands:")
+			println := headlinePrinter(a.config)
+
+			// Only print the first level of sub commands.
+			for _, c := range a.commands.list {
+				if len(c.commands.list) == 0 {
+					continue
+				}
+
+				var output []string
+				for _, c := range c.commands.list {
+					name := c.Name
+					for _, a := range c.Aliases {
+						name += ", " + a
+					}
+					output = append(output, fmt.Sprintf("%s | %v", name, c.Help))
+				}
+
+				fmt.Println()
+				println(c.Name + ":")
+				fmt.Printf("%s\n", columnize.Format(output, config))
+			}
 		}
 	}
 
