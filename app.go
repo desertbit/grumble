@@ -190,8 +190,9 @@ func (a *App) RunCommand(args []string) error {
 	// Create the context and pass the rest args.
 	ctx := newContext(a, cmd, fg, args)
 
-	// Skip if the command run function is nil.
+	// Print the command help if the command run function is nil.
 	if cmd.Run == nil {
+		a.printCommandHelp(a, cmd, a.isShell)
 		return nil
 	}
 
