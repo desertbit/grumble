@@ -361,8 +361,7 @@ Loop:
 			continue Loop
 		}
 
-		// Reset to default prompt and save history.
-		a.rl.SetPrompt(a.config.prompt())
+		// Save history.
 		a.rl.SaveHistory(line)
 
 		// Split the line to args.
@@ -374,6 +373,11 @@ Loop:
 
 		// Execute the command.
 		err = a.RunCommand(args)
+
+		// Reset to default prompt.
+		a.rl.SetPrompt(a.config.prompt())
+
+		// Handle execute errors.
 		if err != nil {
 			a.PrintError(err)
 			continue Loop
