@@ -8,9 +8,9 @@ However sometimes an integrated shell interface is a great and useful extension 
 This library offers a simple API to create powerful CLI applications and automatically starts
 an **integrated interactive shell**, if the application is started without any command arguments.
 
-[![asciicast](https://asciinema.org/a/155332.png)](https://asciinema.org/a/155332?t=5)
-
 **Hint:** The API might change slightly, until a first 1.0 release is published.
+
+[![asciicast](https://asciinema.org/a/155332.png)](https://asciinema.org/a/155332?t=5)
 
 ## Introduction
 
