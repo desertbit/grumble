@@ -40,10 +40,11 @@ import (
 type App struct {
 	*closer.Closer
 
-	rl       *readline.Instance
-	config   *Config
-	commands Commands
-	isShell  bool
+	rl            *readline.Instance
+	config        *Config
+	commands      Commands
+	isShell       bool
+	currentPrompt string
 
 	flags   Flags
 	flagMap FlagMap
@@ -70,6 +71,7 @@ func New(c *Config) (a *App) {
 	// APP.
 	a = &App{
 		config:           c,
+		currentPrompt:    c.prompt(),
 		flagMap:          make(FlagMap),
 		printHelp:        defaultPrintHelp,
 		printCommandHelp: defaultPrintCommandHelp,
@@ -94,6 +96,20 @@ func (a *App) onClose() error {
 		a.rl.Close()
 	}
 	return nil
+}
+
+// SetPrompt a new prompt.
+func (a *App) SetPrompt(p string) {
+	if !a.config.NoColor {
+		p = a.config.PromptColor.Sprint(p)
+	}
+	a.currentPrompt = p
+}
+
+// SetDefaultPrompt resets the current prompt to the default prompt as
+// configured in the config.
+func (a *App) SetDefaultPrompt() {
+	a.currentPrompt = a.config.prompt()
 }
 
 // IsShell indicates, if this is a shell session.
@@ -292,7 +308,7 @@ func (a *App) Run() (err error) {
 
 	// Create the readline instance.
 	a.rl, err = readline.NewEx(&readline.Config{
-		Prompt:                 a.config.prompt(),
+		Prompt:                 a.currentPrompt,
 		HistorySearchFold:      true, // enable case-insensitive history searching
 		DisableAutoSaveHistory: true,
 		HistoryFile:            a.config.HistoryFile,
@@ -323,9 +339,18 @@ func (a *App) Run() (err error) {
 func (a *App) runShell() error {
 	var interruptCount int
 	var lines []string
+	multiActive := false
 
 Loop:
 	for !a.IsClosed() {
+		// Set the prompt.
+		if multiActive {
+			a.rl.SetPrompt(a.config.multiPrompt())
+		} else {
+			a.rl.SetPrompt(a.currentPrompt)
+		}
+		multiActive = false
+
 		// Readline.
 		line, err := a.rl.Readline()
 		if err != nil {
@@ -345,9 +370,9 @@ Loop:
 
 		// Handle multiline input.
 		if strings.HasSuffix(line, "\\") {
+			multiActive = true
 			line = strings.TrimSpace(line[:len(line)-1]) // Add without suffix and trim spaces.
 			lines = append(lines, line)
-			a.rl.SetPrompt(a.config.multiPrompt())
 			continue Loop
 		}
 		lines = append(lines, strings.TrimSpace(line))
@@ -361,8 +386,7 @@ Loop:
 			continue Loop
 		}
 
-		// Reset to default prompt and save history.
-		a.rl.SetPrompt(a.config.prompt())
+		// Save command history.
 		a.rl.SaveHistory(line)
 
 		// Split the line to args.

@@ -10,6 +10,8 @@ an **integrated interactive shell**, if the application is started without any c
 
 [![asciicast](https://asciinema.org/a/155332.png)](https://asciinema.org/a/155332?t=5)
 
+**Hint:** The API might change slightly, until a first 1.0 release is published.
+
 ## Introduction
 
 Create a grumble APP.
