@@ -38,7 +38,7 @@ import (
 
 // App is the entrypoint.
 type App struct {
-	*closer.Closer
+	closer.Closer
 
 	rl            *readline.Instance
 	config        *Config
@@ -70,6 +70,7 @@ func New(c *Config) (a *App) {
 
 	// APP.
 	a = &App{
+		Closer:           closer.New(),
 		config:           c,
 		currentPrompt:    c.prompt(),
 		flagMap:          make(FlagMap),
@@ -77,7 +78,6 @@ func New(c *Config) (a *App) {
 		printCommandHelp: defaultPrintCommandHelp,
 		interruptHandler: defaultInterruptHandler,
 	}
-	a.Closer = closer.New(a.onClose)
 
 	// Register the builtin flags.
 	a.flags.Bool("h", "help", false, "display help")
@@ -89,13 +89,6 @@ func New(c *Config) (a *App) {
 	}
 
 	return
-}
-
-func (a *App) onClose() error {
-	if a.rl != nil {
-		a.rl.Close()
-	}
-	return nil
 }
 
 // SetPrompt a new prompt.
@@ -318,6 +311,7 @@ func (a *App) Run() (err error) {
 	if err != nil {
 		return err
 	}
+	a.OnClose(a.rl.Close)
 
 	// Run the shell hook.
 	if a.shellHook != nil {
