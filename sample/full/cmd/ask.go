@@ -27,8 +27,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/AlecAivazis/survey"
 	"github.com/desertbit/grumble"
+	"gopkg.in/AlecAivazis/survey.v1"
 )
 
 func init() {
