@@ -30,7 +30,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/desertbit/closer"
+	"github.com/desertbit/closer/v3"
 	shlex "github.com/desertbit/go-shlex"
 	"github.com/desertbit/readline"
 	"github.com/fatih/color"
@@ -336,7 +336,7 @@ func (a *App) runShell() error {
 	multiActive := false
 
 Loop:
-	for !a.IsClosed() {
+	for !a.IsClosing() {
 		// Set the prompt.
 		if multiActive {
 			a.rl.SetPrompt(a.config.multiPrompt())
