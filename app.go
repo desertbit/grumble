@@ -238,7 +238,7 @@ func (a *App) Run() (err error) {
 	a.config.NoColor = a.flagMap.Bool("nocolor")
 
 	// Determine if this is a shell session.
-	a.isShell = (len(args) == 0)
+	a.isShell = len(args) == 0
 
 	// Add general builtin commands.
 	a.AddCommand(&Command{
@@ -294,7 +294,7 @@ func (a *App) Run() (err error) {
 		Name: "clear",
 		Help: "clear the screen",
 		Run: func(c *Context) error {
-			readline.ClearScreen(a.rl)
+			_, _ = readline.ClearScreen(a.rl)
 			return nil
 		},
 	})
@@ -381,7 +381,11 @@ Loop:
 		}
 
 		// Save command history.
-		a.rl.SaveHistory(line)
+		err = a.rl.SaveHistory(line)
+		if err != nil {
+			a.PrintError(err)
+			continue Loop
+		}
 
 		// Split the line to args.
 		args, err := shlex.Split(line)
