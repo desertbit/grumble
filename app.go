@@ -235,9 +235,14 @@ func (a *App) RunCommand(args []string) error {
 	// The last command is the final command.
 	cmd := cmds[len(cmds)-1]
 
-	// Check if arguments are allowed.
-	if !cmd.AllowArgs && len(args) > 0 {
-		return fmt.Errorf("command '%s' requires no arguments, try 'help'", cmd.Name)
+	// ExpectedArgs can't be nil
+	if cmd.ExpectedArgs == nil {
+		cmd.ExpectedArgs = NoArgs
+	}
+
+	// Validate the arguments.
+	if err = cmd.ExpectedArgs(args); err != nil {
+		return err
 	}
 
 	// Print the command help if the command run function is nil or if the help flag is set.
@@ -286,9 +291,10 @@ func (a *App) Run() (err error) {
 
 	// Add general builtin commands.
 	a.addCommand(&Command{
-		Name:      "help",
-		Help:      "use 'help [command]' for command help",
-		AllowArgs: true,
+		Name:         "help",
+		Help:         "use 'help [command]' for command help",
+		AllowArgs:    true,
+		ExpectedArgs: MaximumNArgs(1),
 		Run: func(c *Context) error {
 			if len(c.Args) == 0 {
 				a.printHelp(a, a.isShell)

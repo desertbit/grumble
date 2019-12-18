@@ -56,7 +56,11 @@ type Command struct {
 	Flags func(f *Flags)
 
 	// Define if the command is allowed to get arguments.
+	// Deprecated: AllowArgs isn't evaluated in favor of ExpectedArgs.
 	AllowArgs bool
+
+	// Expected arguments.
+	ExpectedArgs ExpectedArgs
 
 	// Function to execute for the command.
 	Run func(c *Context) error
