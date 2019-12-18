@@ -125,7 +125,8 @@ func (a *App) PrintError(err error) {
 	if a.config.NoColor {
 		fmt.Printf("error: %v\n", err)
 	} else {
-		fmt.Printf("%s %v\n", a.config.ErrorColor.Sprintf("error:"), err)
+		a.config.ErrorColor.Print("error: ")
+		fmt.Printf("%v\n", err)
 	}
 }
 
