@@ -295,7 +295,7 @@ func (a *App) Run() (err error) {
 		Name: "clear",
 		Help: "clear the screen",
 		Run: func(c *Context) error {
-			_, _ = readline.ClearScreen(a.rl)
+			readline.ClearScreen(a.rl)
 			return nil
 		},
 	})
