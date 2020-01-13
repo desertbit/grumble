@@ -169,11 +169,18 @@ func (a *App) SetPrintASCIILogo(f func(a *App)) {
 // AddCommand adds a new command.
 // Panics on error.
 func (a *App) AddCommand(cmd *Command) {
+	a.addCommand(cmd, true)
+}
+
+// addCommand adds a new command.
+// If addHelpFlag is true, the
+// Panics on error.
+func (a *App) addCommand(cmd *Command, addHelpFlag bool) {
 	err := cmd.validate()
 	if err != nil {
 		panic(err)
 	}
-	cmd.registerFlags()
+	cmd.registerFlags(addHelpFlag)
 
 	a.commands.Add(cmd)
 }
@@ -196,14 +203,14 @@ func (a *App) RunCommand(args []string) error {
 		return fmt.Errorf("command '%s' requires no arguments, try 'help'", cmd.Name)
 	}
 
-	// Create the context and pass the rest args.
-	ctx := newContext(a, cmd, fg, args)
-
-	// Print the command help if the command run function is nil.
-	if cmd.Run == nil {
+	// Print the command help if the command run function is nil or if the help flag is set.
+	if fg.Bool("help") || cmd.Run == nil {
 		a.printCommandHelp(a, cmd, a.isShell)
 		return nil
 	}
+
+	// Create the context and pass the rest args.
+	ctx := newContext(a, cmd, fg, args)
 
 	// Run the command.
 	err = cmd.Run(ctx)
@@ -241,7 +248,7 @@ func (a *App) Run() (err error) {
 	a.isShell = len(args) == 0
 
 	// Add general builtin commands.
-	a.AddCommand(&Command{
+	a.addCommand(&Command{
 		Name:      "help",
 		Help:      "use 'help [command]' for command help",
 		AllowArgs: true,
@@ -260,7 +267,7 @@ func (a *App) Run() (err error) {
 			a.printCommandHelp(a, cmd, a.isShell)
 			return nil
 		},
-	})
+	}, false)
 
 	// Check if help should be displayed.
 	if a.flagMap.Bool("help") {
