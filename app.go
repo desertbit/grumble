@@ -130,6 +130,12 @@ func (a *App) PrintError(err error) {
 	}
 }
 
+// Printf formats according to a format specifier and writes to terminal output.
+// Printf writes to standard output if terminal output is not yet active.
+func (a *App) Printf(format string, args ...interface{}) (int, error) {
+	return fmt.Fprintf(a, format, args...)
+}
+
 // OnInit sets the function which will be executed before the first command
 // is executed. App flags can be handled here.
 func (a *App) OnInit(f func(a *App, flags FlagMap) error) {
