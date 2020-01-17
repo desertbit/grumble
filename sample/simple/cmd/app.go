@@ -52,13 +52,13 @@ func init() {
 			f.Duration("t", "timeout", time.Second, "timeout duration")
 		},
 		Run: func(c *grumble.Context) error {
-			fmt.Println("timeout:", c.Flags.Duration("timeout"))
-			fmt.Println("directory:", c.Flags.String("directory"))
-			fmt.Println("verbose:", c.Flags.Bool("verbose"))
+			c.App.Println("timeout:", c.Flags.Duration("timeout"))
+			c.App.Println("directory:", c.Flags.String("directory"))
+			c.App.Println("verbose:", c.Flags.Bool("verbose"))
 
 			// Handle args.
-			fmt.Println("args:")
-			fmt.Println(strings.Join(c.Args, "\n"))
+			c.App.Println("args:")
+			c.App.Println(strings.Join(c.Args, "\n"))
 
 			return nil
 		},
@@ -75,7 +75,7 @@ func init() {
 		Name: "root",
 		Help: "root the machine",
 		Run: func(c *grumble.Context) error {
-			fmt.Println(c.Flags.String("directory"))
+			c.App.Println(c.Flags.String("directory"))
 			return fmt.Errorf("failed!")
 		},
 	})

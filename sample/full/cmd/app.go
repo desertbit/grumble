@@ -25,8 +25,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/desertbit/grumble"
 	"github.com/fatih/color"
 )
@@ -49,11 +47,11 @@ var App = grumble.New(&grumble.Config{
 
 func init() {
 	App.SetPrintASCIILogo(func(a *grumble.App) {
-		fmt.Println("                   _   _     ")
-		fmt.Println(" ___ ___ _ _ _____| |_| |___ ")
-		fmt.Println("| . |  _| | |     | . | | -_|")
-		fmt.Println("|_  |_| |___|_|_|_|___|_|___|")
-		fmt.Println("|___|                        ")
-		fmt.Println()
+		a.Println("                   _   _     ")
+		a.Println(" ___ ___ _ _ _____| |_| |___ ")
+		a.Println("| . |  _| | |     | . | | -_|")
+		a.Println("|_  |_| |___|_|_|_|___|_|___|")
+		a.Println("|___|                        ")
+		a.Println()
 	})
 }
