@@ -173,7 +173,8 @@ func (a *App) AddCommand(cmd *Command) {
 }
 
 // addCommand adds a new command.
-// If addHelpFlag is true, the
+// If addHelpFlag is true, a help flag is automatically
+// added to the command which displays its usage on use.
 // Panics on error.
 func (a *App) addCommand(cmd *Command, addHelpFlag bool) {
 	err := cmd.validate()
