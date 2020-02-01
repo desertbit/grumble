@@ -200,7 +200,7 @@ func defaultPrintCommandHelp(a *App, cmd *Command, shell bool) {
 func headlinePrinter(a *App) func(v ...interface{}) (int, error) {
 	if a.config.NoColor || a.config.HelpHeadlineColor == nil {
 		return func(v ...interface{}) (int, error) {
-			return fmt.Fprintln(a, v...)
+			return a.Println(v...)
 		}
 	}
 	return func(v ...interface{}) (int, error) {

@@ -181,10 +181,16 @@ func (a *App) SetPrintASCIILogo(f func(a *App)) {
 
 // Write to the underlying output, using readline if available.
 func (a *App) Write(p []byte) (int, error) {
+	return a.Stdout().Write(p)
+}
+
+// Stdout returns a writer to Stdout, using readline if available.
+// Note that calling before Run() will return a different instance.
+func (a *App) Stdout() io.Writer {
 	if a.rl != nil {
-		return a.rl.Stdout().Write(p)
+		return a.rl.Stdout()
 	}
-	return os.Stdout.Write(p)
+	return os.Stdout
 }
 
 // Stderr returns a writer to Stderr, using readline if available.
