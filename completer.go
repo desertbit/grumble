@@ -59,11 +59,13 @@ func (c *completer) Do(line []rune, pos int) (newLine [][]rune, length int) {
 		words = words[1:]
 	}
 
-	var suggestions [][]rune
+	var (
+		cmds        *Commands
+		flags       *Flags
+		suggestions [][]rune
+	)
 
 	// Find the last commands list.
-	var cmds *Commands
-	var flags *Flags
 	if len(words) == 0 {
 		cmds = c.commands
 	} else {
@@ -91,26 +93,13 @@ func (c *completer) Do(line []rune, pos int) (newLine [][]rune, length int) {
 	}
 
 	if len(prefix) > 0 {
-		var fullMatch *Command
-		var fullMatchCount int
-
 		for _, cmd := range cmds.list {
 			if strings.HasPrefix(cmd.Name, prefix) {
-				if len(cmd.Name) == len(prefix) {
-					fullMatch = cmd
-					fullMatchCount++
-				} else {
-					suggestions = append(suggestions, []rune(strings.TrimPrefix(cmd.Name, prefix)))
-				}
+				suggestions = append(suggestions, []rune(strings.TrimPrefix(cmd.Name, prefix)))
 			}
 			for _, a := range cmd.Aliases {
 				if strings.HasPrefix(a, prefix) {
-					if len(a) == len(prefix) {
-						fullMatch = cmd
-						fullMatchCount++
-					} else {
-						suggestions = append(suggestions, []rune(strings.TrimPrefix(a, prefix)))
-					}
+					suggestions = append(suggestions, []rune(strings.TrimPrefix(a, prefix)))
 				}
 			}
 		}
@@ -129,11 +118,6 @@ func (c *completer) Do(line []rune, pos int) (newLine [][]rune, length int) {
 				}
 			}
 		}
-
-		// If a single full match was found, then append a space.
-		if len(suggestions) == 0 && fullMatch != nil && fullMatchCount == 1 {
-			suggestions = append(suggestions, []rune(" "))
-		}
 	} else {
 		for _, cmd := range cmds.list {
 			suggestions = append(suggestions, []rune(cmd.Name))
@@ -146,6 +130,11 @@ func (c *completer) Do(line []rune, pos int) (newLine [][]rune, length int) {
 				}
 			}
 		}
+	}
+
+	// Append an empty space to each suggestions.
+	for i, s := range suggestions {
+		suggestions[i] = append(s, ' ')
 	}
 
 	return suggestions, len(prefix)
