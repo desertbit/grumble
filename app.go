@@ -123,11 +123,23 @@ func (a *App) Commands() *Commands {
 // PrintError prints the given error.
 func (a *App) PrintError(err error) {
 	if a.config.NoColor {
-		fmt.Printf("error: %v\n", err)
+		a.Printf("error: %v\n", err)
 	} else {
-		a.config.ErrorColor.Print("error: ")
-		fmt.Printf("%v\n", err)
+		a.config.ErrorColor.Fprint(a, "error: ")
+		a.Printf("%v\n", err)
 	}
+}
+
+// Printf formats according to a format specifier and writes to terminal output.
+// Printf writes to standard output if terminal output is not yet active.
+func (a *App) Printf(format string, args ...interface{}) (int, error) {
+	return fmt.Fprintf(a, format, args...)
+}
+
+// Println writes to terminal output followed by a newline.
+// Println writes to standard output if terminal output is not yet active.
+func (a *App) Println(args ...interface{}) (int, error) {
+	return fmt.Fprintln(a, args...)
 }
 
 // OnInit sets the function which will be executed before the first command
@@ -165,6 +177,29 @@ func (a *App) SetPrintASCIILogo(f func(a *App)) {
 		}
 		f(a)
 	}
+}
+
+// Write to the underlying output, using readline if available.
+func (a *App) Write(p []byte) (int, error) {
+	return a.Stdout().Write(p)
+}
+
+// Stdout returns a writer to Stdout, using readline if available.
+// Note that calling before Run() will return a different instance.
+func (a *App) Stdout() io.Writer {
+	if a.rl != nil {
+		return a.rl.Stdout()
+	}
+	return os.Stdout
+}
+
+// Stderr returns a writer to Stderr, using readline if available.
+// Note that calling before Run() will return a different instance.
+func (a *App) Stderr() io.Writer {
+	if a.rl != nil {
+		return a.rl.Stderr()
+	}
+	return os.Stderr
 }
 
 // AddCommand adds a new command.
