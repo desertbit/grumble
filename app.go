@@ -235,14 +235,16 @@ func (a *App) RunCommand(args []string) error {
 	// The last command is the final command.
 	cmd := cmds[len(cmds)-1]
 
-	// ExpectedArgs can't be nil
+	// ExpectedArgs can't be nil.
 	if cmd.ExpectedArgs == nil {
 		cmd.ExpectedArgs = NoArgs
 	}
 
 	// Validate the arguments.
-	if err = cmd.ExpectedArgs(args); err != nil {
-		return err
+	if !cmd.AllowArgs {
+		if err = cmd.ExpectedArgs(args); err != nil {
+			return err
+		}
 	}
 
 	// Print the command help if the command run function is nil or if the help flag is set.
