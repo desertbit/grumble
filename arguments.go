@@ -35,7 +35,7 @@ func MaximumNArgs(n int) ExpectedArgs {
 	}
 }
 
-// ExactArgs returns an error if there are not exactly n args.
+// ExactArgs returns an error if there are not exactly N args.
 func ExactArgs(n int) ExpectedArgs {
 	return func(args []string) error {
 		if len(args) != n {
