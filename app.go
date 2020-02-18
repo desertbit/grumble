@@ -31,7 +31,7 @@ import (
 	"strings"
 
 	"github.com/desertbit/closer/v3"
-	shlex "github.com/desertbit/go-shlex"
+	shlex "github.com/anmitsu/go-shlex"
 	"github.com/desertbit/readline"
 	"github.com/fatih/color"
 )
@@ -432,7 +432,7 @@ Loop:
 		}
 
 		// Split the line to args.
-		args, err := shlex.Split(line)
+		args, err := shlex.Split(line, true)
 		if err != nil {
 			a.PrintError(fmt.Errorf("invalid args: %v", err))
 			continue Loop

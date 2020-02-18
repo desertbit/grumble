@@ -4,11 +4,11 @@ go 1.12
 
 require (
 	github.com/Netflix/go-expect v0.0.0-20190729225929-0e00d9168667 // indirect
+	github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239
 	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/desertbit/closer/v3 v3.0.1
 	github.com/desertbit/columnize v2.1.0+incompatible
-	github.com/desertbit/go-shlex v0.0.0-20150515145356-3f9db97f8568
 	github.com/desertbit/readline v0.0.0-20171208011716-f6d7a1f6fbf3
 	github.com/fatih/color v1.7.0
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
