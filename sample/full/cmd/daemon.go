@@ -34,11 +34,11 @@ import (
 
 func init() {
 	App.AddCommand(&grumble.Command{
-		Name:      "daemon",
-		Help:      "run the daemon",
-		Aliases:   []string{"run"},
-		Usage:     "daemon [OPTIONS]",
-		AllowArgs: true,
+		Name:         "daemon",
+		Help:         "run the daemon",
+		Aliases:      []string{"run"},
+		Usage:        "daemon [OPTIONS] [ARGS]",
+		ExpectedArgs: grumble.MaximumNArgs(3),
 		Flags: func(f *grumble.Flags) {
 			f.Duration("t", "timeout", time.Second, "timeout duration")
 		},
@@ -47,9 +47,11 @@ func init() {
 			fmt.Println("directory:", c.Flags.String("directory"))
 			fmt.Println("verbose:", c.Flags.Bool("verbose"))
 
-			// Handle args.
-			fmt.Println("args:")
-			fmt.Println(strings.Join(c.Args, "\n"))
+			// The command accepts up to 3 optional arguments.
+			if len(c.Args) > 0 {
+				fmt.Println("args:")
+				fmt.Println(strings.Join(c.Args, "\n"))
+			}
 
 			return nil
 		},

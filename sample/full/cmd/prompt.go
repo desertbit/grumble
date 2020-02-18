@@ -36,10 +36,18 @@ func init() {
 	App.AddCommand(promptCommand)
 
 	promptCommand.AddCommand(&grumble.Command{
-		Name: "set",
-		Help: "set a custom prompt",
+		Name:         "set",
+		Help:         "set a custom prompt",
+		Usage:        "prompt set [ARG]",
+		ExpectedArgs: grumble.MaximumNArgs(1),
 		Run: func(c *grumble.Context) error {
-			c.App.SetPrompt("CUSTOM PROMPT >> ")
+			var customPrompt = "CUSTOM PROMPT >> "
+
+			if len(c.Args) == 1 {
+				customPrompt = c.Args[0]
+			}
+
+			c.App.SetPrompt(customPrompt)
 			return nil
 		},
 	})
