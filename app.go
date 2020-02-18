@@ -295,7 +295,7 @@ func (a *App) Run() (err error) {
 	a.addCommand(&Command{
 		Name:         "help",
 		Help:         "use 'help [command]' for command help",
-		ExpectedArgs: MaximumNArgs(1),
+		ExpectedArgs: MaximumNArgs(6),
 		Run: func(c *Context) error {
 			if len(c.Args) == 0 {
 				a.printHelp(a, a.isShell)
