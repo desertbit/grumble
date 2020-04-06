@@ -27,7 +27,7 @@ package grumble
 import (
 	"strings"
 
-	"github.com/desertbit/go-shlex"
+	shlex "github.com/desertbit/go-shlex"
 )
 
 type completer struct {
@@ -42,7 +42,7 @@ func newCompleter(commands *Commands) *completer {
 
 func (c *completer) Do(line []rune, pos int) (newLine [][]rune, length int) {
 	var words []string
-	if w, err := shlex.Split(string(line)); err == nil {
+	if w, err := shlex.Split(string(line), true); err == nil {
 		words = w
 	} else {
 		words = strings.Fields(string(line)) // fallback
