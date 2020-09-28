@@ -29,21 +29,25 @@ type Context struct {
 	// Reference to the app.
 	App *App
 
+	// Deprecated: Use ArgsMap instead.
 	// Args containes the command arguments.
 	Args []string
 
 	// Flags contains all command line flags.
 	Flags FlagMap
 
+	ArgsM ArgMap
+
 	// Cmd is the currently executing command.
 	Command *Command
 }
 
-func newContext(a *App, cmd *Command, flags FlagMap, args []string) *Context {
+func newContext(a *App, cmd *Command, flags FlagMap, argsM ArgMap, args []string) *Context {
 	return &Context{
 		App:     a,
 		Command: cmd,
 		Flags:   flags,
+		ArgsM:   argsM,
 		Args:    args,
 	}
 }

@@ -42,23 +42,34 @@ var App = grumble.New(&grumble.Config{
 })
 
 func init() {
+	allowArgs := false
 	App.AddCommand(&grumble.Command{
-		Name:      "daemon",
-		Help:      "run the daemon",
-		Aliases:   []string{"run"},
-		Usage:     "daemon [OPTIONS]",
-		AllowArgs: true,
+		Name:    "daemon",
+		Help:    "run the daemon",
+		Aliases: []string{"run"},
+		//Usage:     "daemon [OPTIONS]",
+		AllowArgs: allowArgs,
 		Flags: func(f *grumble.Flags) {
 			f.Duration("t", "timeout", time.Second, "timeout duration")
+		},
+		Args: func(a *grumble.Args) {
+			a.String("test", "bla bla", "t", true)
+			a.Int("itest", "bla bluuuuuuub", 88, true)
+			a.StringList("strlisttest", "bla", []string{"helllo", "blaaa"}, true)
 		},
 		Run: func(c *grumble.Context) error {
 			c.App.Println("timeout:", c.Flags.Duration("timeout"))
 			c.App.Println("directory:", c.Flags.String("directory"))
 			c.App.Println("verbose:", c.Flags.Bool("verbose"))
+			c.App.Println("test:", c.ArgsM.String("test"))
+			c.App.Println("int:", c.ArgsM.Int("itest"))
+			c.App.Println("strlisttest:", strings.Join(c.ArgsM.StringList("strlisttest"), ","))
 
 			// Handle args.
-			c.App.Println("args:")
-			c.App.Println(strings.Join(c.Args, "\n"))
+			if allowArgs {
+				c.App.Println("args:")
+				c.App.Println(" -", strings.Join(c.Args, "\n - "))
+			}
 
 			return nil
 		},

@@ -49,6 +49,9 @@ type App struct {
 	flags   Flags
 	flagMap FlagMap
 
+	args   Args
+	argMap ArgMap
+
 	initHook  func(a *App, flags FlagMap) error
 	shellHook func(a *App) error
 
@@ -74,6 +77,7 @@ func New(c *Config) (a *App) {
 		config:           c,
 		currentPrompt:    c.prompt(),
 		flagMap:          make(FlagMap),
+		argMap:           make(ArgMap),
 		printHelp:        defaultPrintHelp,
 		printCommandHelp: defaultPrintCommandHelp,
 		interruptHandler: defaultInterruptHandler,
@@ -83,7 +87,7 @@ func New(c *Config) (a *App) {
 	a.flags.Bool("h", "help", false, "display help")
 	a.flags.BoolL("nocolor", false, "disable color output")
 
-	// Register the user flags if present.
+	// Register the user flags, if present.
 	if c.Flags != nil {
 		c.Flags(&a.flags)
 	}
@@ -91,7 +95,7 @@ func New(c *Config) (a *App) {
 	return
 }
 
-// SetPrompt a new prompt.
+// SetPrompt sets a new prompt.
 func (a *App) SetPrompt(p string) {
 	if !a.config.NoColor {
 		p = a.config.PromptColor.Sprint(p)
@@ -217,27 +221,38 @@ func (a *App) addCommand(cmd *Command, addHelpFlag bool) {
 	if err != nil {
 		panic(err)
 	}
-	cmd.registerFlags(addHelpFlag)
+	cmd.registerFlagsAndArgs(addHelpFlag)
 
 	a.commands.Add(cmd)
 }
 
 // RunCommand runs a single command.
 func (a *App) RunCommand(args []string) error {
-	// Parse the arguments string and obtain the command path to the root.
+	// Parse the arguments string and obtain the command path to the root,
+	// and the command flags.
 	cmds, fg, args, err := a.commands.parse(args, a.flagMap, false)
 	if err != nil {
 		return err
 	} else if len(cmds) == 0 {
-		return fmt.Errorf("incorrect input, try 'help'")
+		return fmt.Errorf("unknown command, try 'help'")
 	}
 
 	// The last command is the final command.
 	cmd := cmds[len(cmds)-1]
 
-	// Check if arguments are allowed.
+	// Parse the arguments.
+	cmdArgmap := make(ArgMap)
+	cmdArgmap.copyMissingValues(a.argMap, true)
+	args, err = cmd.args.parse(args, cmdArgmap)
+	if err != nil {
+		return err
+	}
+
+	// Check if (deprecated) arbitrary arguments are allowed, or if
+	// values from the argument string are not consumed (and therefore invalid).
 	if !cmd.AllowArgs && len(args) > 0 {
-		return fmt.Errorf("command '%s' requires no arguments, try 'help'", cmd.Name)
+		return fmt.Errorf("command '%s' does not allow arbitrary arguments, "+
+			"but has unconsumed input '%s', try 'help'", cmd.Name, strings.Join(args, " "))
 	}
 
 	// Print the command help if the command run function is nil or if the help flag is set.
@@ -247,7 +262,7 @@ func (a *App) RunCommand(args []string) error {
 	}
 
 	// Create the context and pass the rest args.
-	ctx := newContext(a, cmd, fg, args)
+	ctx := newContext(a, cmd, fg, cmdArgmap, args)
 
 	// Run the command.
 	err = cmd.Run(ctx)
