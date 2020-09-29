@@ -49,7 +49,7 @@ func init() {
 		Usage:     "daemon [OPTIONS]",
 		AllowArgs: true,
 		Flags: func(f *grumble.Flags) {
-			f.Duration("a", "timeout", time.Second, "timeout duration")
+			f.Duration("t", "timeout", time.Second, "timeout duration")
 		},
 		Run: func(c *grumble.Context) error {
 			c.App.Println("timeout:", c.Flags.Duration("timeout"))
