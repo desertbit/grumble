@@ -25,7 +25,7 @@
 package cmd
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 	"time"
 
@@ -42,35 +42,21 @@ var App = grumble.New(&grumble.Config{
 })
 
 func init() {
-	allowArgs := false
 	App.AddCommand(&grumble.Command{
 		Name:    "daemon",
 		Help:    "run the daemon",
 		Aliases: []string{"run"},
-		//Usage:     "daemon [OPTIONS]",
-		AllowArgs: allowArgs,
 		Flags: func(f *grumble.Flags) {
 			f.Duration("t", "timeout", time.Second, "timeout duration")
 		},
 		Args: func(a *grumble.Args) {
-			a.String("test", "bla bla", "t", false)
-			a.Int("itest", "bla bluuuuuuub", 88, false)
-			a.StringList("strlisttest", "bla", []string{"helllo", "blaaa"}, true)
+			a.StringList("services", "additional services that should be started", []string{}, true)
 		},
 		Run: func(c *grumble.Context) error {
 			c.App.Println("timeout:", c.Flags.Duration("timeout"))
 			c.App.Println("directory:", c.Flags.String("directory"))
 			c.App.Println("verbose:", c.Flags.Bool("verbose"))
-			c.App.Println("test:", c.ArgsM.String("test"))
-			c.App.Println("int:", c.ArgsM.Int("itest"))
-			c.App.Println("strlisttest:", strings.Join(c.ArgsM.StringList("strlisttest"), ","))
-
-			// Handle args.
-			if allowArgs {
-				c.App.Println("args:")
-				c.App.Println(" -", strings.Join(c.Args, "\n - "))
-			}
-
+			c.App.Println("services:", strings.Join(c.ArgsM.StringList("services"), ","))
 			return nil
 		},
 	})
@@ -87,7 +73,7 @@ func init() {
 		Help: "root the machine",
 		Run: func(c *grumble.Context) error {
 			c.App.Println(c.Flags.String("directory"))
-			return fmt.Errorf("failed!")
+			return errors.New("failed")
 		},
 	})
 }

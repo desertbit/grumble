@@ -73,6 +73,13 @@ func (a *Args) register(
 		panic(fmt.Errorf("missing help message for argument '%s'", name))
 	}
 
+	// Ensure the name is unique.
+	for _, ai := range a.list {
+		if ai.Name == name {
+			panic(fmt.Errorf("argument '%s' registered twice", name))
+		}
+	}
+
 	if !a.empty() {
 		last := a.list[len(a.list)-1]
 		// Check, if a list argument has been supplied already.
