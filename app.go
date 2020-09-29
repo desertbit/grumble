@@ -240,6 +240,12 @@ func (a *App) RunCommand(args []string) error {
 	// The last command is the final command.
 	cmd := cmds[len(cmds)-1]
 
+	// Print the command help if the command run function is nil or if the help flag is set.
+	if fg.Bool("help") || cmd.Run == nil {
+		a.printCommandHelp(a, cmd, a.isShell)
+		return nil
+	}
+
 	// Parse the arguments.
 	cmdArgmap := make(ArgMap)
 	cmdArgmap.copyMissingValues(a.argMap, true)
@@ -253,12 +259,6 @@ func (a *App) RunCommand(args []string) error {
 	if !cmd.AllowArgs && len(args) > 0 {
 		return fmt.Errorf("command '%s' does not allow arbitrary arguments, "+
 			"but has unconsumed input '%s', try 'help'", cmd.Name, strings.Join(args, " "))
-	}
-
-	// Print the command help if the command run function is nil or if the help flag is set.
-	if fg.Bool("help") || cmd.Run == nil {
-		a.printCommandHelp(a, cmd, a.isShell)
-		return nil
 	}
 
 	// Create the context and pass the rest args.

@@ -181,10 +181,15 @@ func defaultPrintCommandHelp(a *App, cmd *Command, shell bool) {
 		}
 		if !cmd.args.empty() {
 			for _, arg := range cmd.args.list {
+				name := arg.Name
 				if arg.isList {
-					a.Printf(" %s...", arg.Name)
+					name += "..."
+				}
+
+				if arg.optional {
+					a.Printf(" [%s]", name)
 				} else {
-					a.Printf(" %s", arg.Name)
+					a.Printf(" %s", name)
 				}
 			}
 		}
@@ -253,8 +258,12 @@ func printArgs(a *App, args *Args) {
 		if a.Default != nil && a.HelpShowDefault && len(fmt.Sprintf("%v", a.Default)) > 0 {
 			defaultValue = fmt.Sprintf("(default: %v)", a.Default)
 		}
+		optional := ""
+		if a.optional {
+			optional = " (optional)"
+		}
 
-		output = append(output, fmt.Sprintf("%s | %s |||| %s %s", a.Name, a.HelpArgs, a.Help, defaultValue))
+		output = append(output, fmt.Sprintf("%s | %s |||| %s %s%s", a.Name, a.HelpArgs, a.Help, defaultValue, optional))
 	}
 
 	if len(output) > 0 {

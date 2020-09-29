@@ -25,7 +25,6 @@
 package grumble
 
 import (
-	"errors"
 	"fmt"
 	"sort"
 	"strconv"
@@ -42,7 +41,8 @@ type argItem struct {
 	HelpShowDefault bool
 	Default         interface{}
 
-	isList bool
+	isList   bool
+	optional bool
 }
 
 // Args holds all the registered args.
@@ -61,21 +61,29 @@ func (a *Args) sort() {
 
 func (a *Args) register(
 	name, help, helpArgs string,
-	helpShowDefault, isList bool,
+	helpShowDefault, isList, optional bool,
 	defaultValue interface{},
 	df defaultArgFunc,
 	pf parseArgFunc,
 ) {
 	// Validate.
 	if name == "" {
-		panic(errors.New("empty argument name"))
+		panic("empty argument name")
 	} else if help == "" {
 		panic(fmt.Errorf("missing help message for argument '%s'", name))
 	}
 
-	// Check, if a list argument has been supplied already.
-	if !a.empty() && a.list[len(a.list)-1].isList {
-		panic(errors.New("list argument has been registered, nothing can come after it"))
+	if !a.empty() {
+		last := a.list[len(a.list)-1]
+		// Check, if a list argument has been supplied already.
+		if last.isList {
+			panic("list argument has been registered, nothing can come after it")
+		}
+
+		// Check, that after an optional argument no mandatory one follows.
+		if !optional && last.optional {
+			panic("mandatory argument after optional")
+		}
 	}
 
 	a.list = append(a.list, &argItem{
@@ -85,6 +93,7 @@ func (a *Args) register(
 		HelpArgs:        helpArgs,
 		Default:         defaultValue,
 		isList:          isList,
+		optional:        optional,
 	})
 	a.defaults = append(a.defaults, df)
 	a.parsers = append(a.parsers, pf)
@@ -127,7 +136,7 @@ func (a *Args) String(name, help, defaultValue string, optional bool) {
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "string", true, false, defaultValue, df,
+	a.register(name, help, "string", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			if len(args) == 0 {
 				return args, false, nil
@@ -145,7 +154,7 @@ func (a *Args) StringList(name, help string, defaultValue []string, optional boo
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "string list", true, true, defaultValue, df,
+	a.register(name, help, "string list", true, true, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			if len(args) == 0 {
 				return args, false, nil
@@ -163,7 +172,7 @@ func (a *Args) Bool(name, help string, defaultValue, optional bool) {
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "bool", true, false, defaultValue, df,
+	a.register(name, help, "bool", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			if len(args) == 0 {
 				return args, false, nil
@@ -188,7 +197,7 @@ func (a *Args) BoolList(name, help string, defaultValue []bool, optional bool) {
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "bool list", true, false, defaultValue, df,
+	a.register(name, help, "bool list", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			if len(args) == 0 {
 				return args, false, nil
@@ -219,7 +228,7 @@ func (a *Args) Int(name, help string, defaultValue int, optional bool) {
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "int", true, false, defaultValue, df,
+	a.register(name, help, "int", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			if len(args) == 0 {
 				return args, false, nil
@@ -244,7 +253,7 @@ func (a *Args) IntList(name, help string, defaultValue []int, optional bool) {
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "int list", true, false, defaultValue, df,
+	a.register(name, help, "int list", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			var (
 				err error
@@ -271,7 +280,7 @@ func (a *Args) Int64(name, help string, defaultValue int64, optional bool) {
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "int64", true, false, defaultValue, df,
+	a.register(name, help, "int64", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			if len(args) == 0 {
 				return args, false, nil
@@ -296,7 +305,7 @@ func (a *Args) Int64List(name, help string, defaultValue []int64, optional bool)
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "int64 list", true, false, defaultValue, df,
+	a.register(name, help, "int64 list", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			var (
 				err error
@@ -323,7 +332,7 @@ func (a *Args) Uint(name, help string, defaultValue uint, optional bool) {
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "uint", true, false, defaultValue, df,
+	a.register(name, help, "uint", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			if len(args) == 0 {
 				return args, false, nil
@@ -348,7 +357,7 @@ func (a *Args) UintList(name, help string, defaultValue []uint, optional bool) {
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "uint list", true, false, defaultValue, df,
+	a.register(name, help, "uint list", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			var (
 				err error
@@ -377,7 +386,7 @@ func (a *Args) Uint64(name, help string, defaultValue uint64, optional bool) {
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "uint64", true, false, defaultValue, df,
+	a.register(name, help, "uint64", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			if len(args) == 0 {
 				return args, false, nil
@@ -402,7 +411,7 @@ func (a *Args) Uint64List(name, help string, defaultValue []uint64, optional boo
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "uint64 list", true, false, defaultValue, df,
+	a.register(name, help, "uint64 list", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			var (
 				err error
@@ -429,7 +438,7 @@ func (a *Args) Float64(name, help string, defaultValue float64, optional bool) {
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "float64", true, false, defaultValue, df,
+	a.register(name, help, "float64", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			if len(args) == 0 {
 				return args, false, nil
@@ -454,7 +463,7 @@ func (a *Args) Float64List(name, help string, defaultValue []float64, optional b
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "float64 list", true, false, defaultValue, df,
+	a.register(name, help, "float64 list", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			var (
 				err error
@@ -481,7 +490,7 @@ func (a *Args) Duration(name, help string, defaultValue time.Duration, optional 
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "duration", true, false, defaultValue, df,
+	a.register(name, help, "duration", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			if len(args) == 0 {
 				return args, false, nil
@@ -506,7 +515,7 @@ func (a *Args) DurationList(name, help string, defaultValue []time.Duration, opt
 		df = func(res ArgMap) { res[name] = &ArgMapItem{Value: defaultValue, IsDefault: true} }
 	}
 
-	a.register(name, help, "duration list", true, false, defaultValue, df,
+	a.register(name, help, "duration list", true, false, optional, defaultValue, df,
 		func(args []string, res ArgMap) ([]string, bool, error) {
 			var (
 				err error

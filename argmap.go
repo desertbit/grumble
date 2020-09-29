@@ -150,7 +150,7 @@ func (a ArgMap) Int64(long string) int64 {
 
 // Int64List returns the given arg value as int64.
 // Panics if not present. Args must be registered.
-func (a ArgMap) Int64List(long string) int64 {
+func (a ArgMap) Int64List(long string) []int64 {
 	i := a[long]
 	if i == nil {
 		panic(fmt.Errorf("missing arg value: arg '%s' not registered", long))

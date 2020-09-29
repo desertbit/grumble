@@ -53,8 +53,8 @@ func init() {
 			f.Duration("t", "timeout", time.Second, "timeout duration")
 		},
 		Args: func(a *grumble.Args) {
-			a.String("test", "bla bla", "t", true)
-			a.Int("itest", "bla bluuuuuuub", 88, true)
+			a.String("test", "bla bla", "t", false)
+			a.Int("itest", "bla bluuuuuuub", 88, false)
 			a.StringList("strlisttest", "bla", []string{"helllo", "blaaa"}, true)
 		},
 		Run: func(c *grumble.Context) error {
