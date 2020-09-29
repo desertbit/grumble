@@ -169,15 +169,12 @@ func defaultPrintCommandHelp(a *App, cmd *Command, shell bool) {
 
 	// Print either the user-provided usage message or compose
 	// one on our own from the flags and args.
+	a.Println()
+	printHeadline(a, "Usage:")
 	if len(cmd.Usage) > 0 {
-		a.Println()
-		printHeadline(a, "Usage:")
 		a.Printf("  %s\n", cmd.Usage)
 	} else {
 		// Layout: Cmd [Flags] Args
-		a.Println()
-		printHeadline(a, "Usage:")
-
 		a.Printf("  %s", cmd.Name)
 		if !cmd.flags.empty() {
 			a.Printf(" [flags]")
