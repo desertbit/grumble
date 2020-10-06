@@ -255,15 +255,10 @@ func printArgs(a *App, args *Args) {
 	var output []string
 	for _, a := range args.list {
 		defaultValue := ""
-		if a.Default != nil && a.HelpShowDefault && len(fmt.Sprintf("%v", a.Default)) > 0 {
+		if a.Default != nil && a.HelpShowDefault && len(fmt.Sprintf("%v", a.Default)) > 0 && a.optional {
 			defaultValue = fmt.Sprintf("(default: %v)", a.Default)
 		}
-		optional := ""
-		if a.optional {
-			optional = " (optional)"
-		}
-
-		output = append(output, fmt.Sprintf("%s | %s |||| %s %s%s", a.Name, a.HelpArgs, a.Help, defaultValue, optional))
+		output = append(output, fmt.Sprintf("%s | %s |||| %s %s", a.Name, a.HelpArgs, a.Help, defaultValue))
 	}
 
 	if len(output) > 0 {

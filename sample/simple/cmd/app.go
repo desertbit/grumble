@@ -50,12 +50,16 @@ func init() {
 			f.Duration("t", "timeout", time.Second, "timeout duration")
 		},
 		Args: func(a *grumble.Args) {
+			a.Bool("production", "whether to start the daemon in production or development mode", false, false)
+			a.Int("opt-level", "the optimization mode", 3, true)
 			a.StringList("services", "additional services that should be started", []string{}, true)
 		},
 		Run: func(c *grumble.Context) error {
 			c.App.Println("timeout:", c.Flags.Duration("timeout"))
 			c.App.Println("directory:", c.Flags.String("directory"))
 			c.App.Println("verbose:", c.Flags.Bool("verbose"))
+			c.App.Println("production:", c.ArgsM.Bool("production"))
+			c.App.Println("opt-level:", c.ArgsM.Int("opt-level"))
 			c.App.Println("services:", strings.Join(c.ArgsM.StringList("services"), ","))
 			return nil
 		},
