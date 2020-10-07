@@ -49,8 +49,7 @@ type App struct {
 	flags   Flags
 	flagMap FlagMap
 
-	args   Args
-	argMap ArgMap
+	args Args
 
 	initHook  func(a *App, flags FlagMap) error
 	shellHook func(a *App) error
@@ -77,7 +76,6 @@ func New(c *Config) (a *App) {
 		config:           c,
 		currentPrompt:    c.prompt(),
 		flagMap:          make(FlagMap),
-		argMap:           make(ArgMap),
 		printHelp:        defaultPrintHelp,
 		printCommandHelp: defaultPrintCommandHelp,
 		interruptHandler: defaultInterruptHandler,
@@ -248,7 +246,6 @@ func (a *App) RunCommand(args []string) error {
 
 	// Parse the arguments.
 	cmdArgMap := make(ArgMap)
-	cmdArgMap.copyMissingValues(a.argMap, true)
 	args, err = cmd.args.parse(args, cmdArgMap)
 	if err != nil {
 		return err

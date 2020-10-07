@@ -38,18 +38,6 @@ type ArgMapItem struct {
 // ArgMap holds all the parsed arg values.
 type ArgMap map[string]*ArgMapItem
 
-// copyMissingValues adds all missing values to the args map.
-func (a ArgMap) copyMissingValues(m ArgMap, copyDefault bool) {
-	for k, v := range m {
-		if _, ok := a[k]; !ok {
-			if !copyDefault && v.IsDefault {
-				continue
-			}
-			a[k] = v
-		}
-	}
-}
-
 // String returns the given arg value as string.
 // Panics if not present. Args must be registered.
 func (a ArgMap) String(name string) string {
