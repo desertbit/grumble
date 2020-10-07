@@ -103,6 +103,9 @@ func (a ArgMap) BoolList(long string) []bool {
 	if i == nil {
 		panic(fmt.Errorf("missing arg value: arg '%s' not registered", long))
 	}
+	if i.Value == nil {
+		return nil
+	}
 	b, ok := i.Value.([]bool)
 	if !ok {
 		panic(fmt.Errorf("failed to assert arg '%s' to bool list", long))
@@ -130,6 +133,9 @@ func (a ArgMap) IntList(long string) []int {
 	i := a[long]
 	if i == nil {
 		panic(fmt.Errorf("missing arg value: arg '%s' not registered", long))
+	}
+	if i.Value == nil {
+		return nil
 	}
 	v, ok := i.Value.([]int)
 	if !ok {
@@ -159,6 +165,9 @@ func (a ArgMap) Int64List(long string) []int64 {
 	if i == nil {
 		panic(fmt.Errorf("missing arg value: arg '%s' not registered", long))
 	}
+	if i.Value == nil {
+		return nil
+	}
 	v, ok := i.Value.([]int64)
 	if !ok {
 		panic(fmt.Errorf("failed to assert arg '%s' to int64 list", long))
@@ -186,6 +195,9 @@ func (a ArgMap) UintList(long string) []uint {
 	i := a[long]
 	if i == nil {
 		panic(fmt.Errorf("missing arg value: arg '%s' not registered", long))
+	}
+	if i.Value == nil {
+		return nil
 	}
 	v, ok := i.Value.([]uint)
 	if !ok {
@@ -215,6 +227,9 @@ func (a ArgMap) Uint64List(long string) []uint64 {
 	if i == nil {
 		panic(fmt.Errorf("missing arg value: arg '%s' not registered", long))
 	}
+	if i.Value == nil {
+		return nil
+	}
 	v, ok := i.Value.([]uint64)
 	if !ok {
 		panic(fmt.Errorf("failed to assert arg '%s' to uint64 list", long))
@@ -243,6 +258,9 @@ func (a ArgMap) Float64List(long string) []float64 {
 	if i == nil {
 		panic(fmt.Errorf("missing arg value: arg '%s' not registered", long))
 	}
+	if i.Value == nil {
+		return nil
+	}
 	v, ok := i.Value.([]float64)
 	if !ok {
 		panic(fmt.Errorf("failed to assert arg '%s' to float64 list", long))
@@ -270,6 +288,9 @@ func (a ArgMap) DurationList(long string) []time.Duration {
 	i := a[long]
 	if i == nil {
 		panic(fmt.Errorf("missing arg value: arg '%s' not registered", long))
+	}
+	if i.Value == nil {
+		return nil
 	}
 	v, ok := i.Value.([]time.Duration)
 	if !ok {
