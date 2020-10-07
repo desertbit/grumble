@@ -247,9 +247,9 @@ func (a *App) RunCommand(args []string) error {
 	}
 
 	// Parse the arguments.
-	cmdArgmap := make(ArgMap)
-	cmdArgmap.copyMissingValues(a.argMap, true)
-	args, err = cmd.args.parse(args, cmdArgmap)
+	cmdArgMap := make(ArgMap)
+	cmdArgMap.copyMissingValues(a.argMap, true)
+	args, err = cmd.args.parse(args, cmdArgMap)
 	if err != nil {
 		return err
 	}
@@ -260,7 +260,7 @@ func (a *App) RunCommand(args []string) error {
 	}
 
 	// Create the context and pass the rest args.
-	ctx := newContext(a, cmd, fg, cmdArgmap)
+	ctx := newContext(a, cmd, fg, cmdArgMap)
 
 	// Run the command.
 	err = cmd.Run(ctx)
