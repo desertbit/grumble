@@ -254,15 +254,13 @@ func (a *App) RunCommand(args []string) error {
 		return err
 	}
 
-	// Check if (deprecated) arbitrary arguments are allowed, or if
-	// values from the argument string are not consumed (and therefore invalid).
-	if !cmd.AllowArgs && len(args) > 0 {
-		return fmt.Errorf("command '%s' does not allow arbitrary arguments, "+
-			"but has unconsumed input '%s', try 'help'", cmd.Name, strings.Join(args, " "))
+	// Check, if values from the argument string are not consumed (and therefore invalid).
+	if len(args) > 0 {
+		return fmt.Errorf("invalid usage of command '%s' (unconsumed input '%s'), try 'help'", cmd.Name, strings.Join(args, " "))
 	}
 
 	// Create the context and pass the rest args.
-	ctx := newContext(a, cmd, fg, cmdArgmap, args)
+	ctx := newContext(a, cmd, fg, cmdArgmap)
 
 	// Run the command.
 	err = cmd.Run(ctx)
@@ -301,15 +299,18 @@ func (a *App) Run() (err error) {
 
 	// Add general builtin commands.
 	a.addCommand(&Command{
-		Name:      "help",
-		Help:      "use 'help [command]' for command help",
-		AllowArgs: true,
+		Name: "help",
+		Help: "use 'help [command]' for command help",
+		Args: func(a *Args) {
+			a.StringList("command", "the name of the command")
+		},
 		Run: func(c *Context) error {
-			if len(c.Args) == 0 {
+			args := c.Args.StringList("command")
+			if len(args) == 0 {
 				a.printHelp(a, a.isShell)
 				return nil
 			}
-			cmd, _, err := a.commands.FindCommand(c.Args)
+			cmd, _, err := a.commands.FindCommand(args)
 			if err != nil {
 				return err
 			} else if cmd == nil {

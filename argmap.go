@@ -66,10 +66,14 @@ func (a ArgMap) String(name string) string {
 
 // StringList returns the given arg value as string slice.
 // Panics if not present. Args must be registered.
+// If optional and not provided, nil is returned.
 func (a ArgMap) StringList(long string) []string {
 	i := a[long]
 	if i == nil {
 		panic(fmt.Errorf("missing arg value: arg '%s' not registered", long))
+	}
+	if i.Value == nil {
+		return nil
 	}
 	s, ok := i.Value.([]string)
 	if !ok {

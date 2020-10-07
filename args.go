@@ -36,15 +36,16 @@ import (
 type parseArgFunc func(args []string, res ArgMap) ([]string, error)
 
 type argItem struct {
-	Name            string
-	Help            string
-	HelpArgs        string
-	HelpShowDefault bool
-	Default         interface{}
+	Name     string
+	Help     string
+	HelpArgs string
+	Default  interface{}
 
 	parser   parseArgFunc
 	isList   bool
 	optional bool
+	listMin  int
+	listMax  int
 }
 
 // Args holds all the registered args.
@@ -54,9 +55,9 @@ type Args struct {
 
 func (a *Args) register(
 	name, help, helpArgs string,
-	helpShowDefault, isList, optional bool,
-	defaultValue interface{},
+	isList bool,
 	pf parseArgFunc,
+	opts ...ArgOption,
 ) {
 	// Validate.
 	if name == "" {
@@ -72,29 +73,43 @@ func (a *Args) register(
 		}
 	}
 
+	// Create the item.
+	item := &argItem{
+		Name:     name,
+		Help:     help,
+		HelpArgs: helpArgs,
+		parser:   pf,
+		isList:   isList,
+		optional: isList,
+		listMin:  -1,
+		listMax:  -1,
+	}
+
+	// Apply options.
+	// Afterwards, we can make some final checks.
+	for _, opt := range opts {
+		opt(item)
+	}
+
+	if item.isList && item.listMax > 0 && item.listMax < item.listMin {
+		panic("max must not be less than min for list arguments")
+	}
+
 	if !a.empty() {
 		last := a.list[len(a.list)-1]
+
 		// Check, if a list argument has been supplied already.
 		if last.isList {
 			panic("list argument has been registered, nothing can come after it")
 		}
 
 		// Check, that after an optional argument no mandatory one follows.
-		if !optional && last.optional {
-			panic("mandatory argument after optional")
+		if !item.optional && last.optional {
+			panic("mandatory argument not allowed after optional one")
 		}
 	}
 
-	a.list = append(a.list, &argItem{
-		Name:            name,
-		Help:            help,
-		HelpShowDefault: helpShowDefault,
-		HelpArgs:        helpArgs,
-		Default:         defaultValue,
-		parser:          pf,
-		isList:          isList,
-		optional:        optional,
-	})
+	a.list = append(a.list, item)
 }
 
 // empty returns true, if the args are empty.
@@ -108,6 +123,17 @@ func (a *Args) parse(args []string, res ArgMap) ([]string, error) {
 	// otherwise the argument is missing.
 	var err error
 	for _, item := range a.list {
+		// If it is a list argument, it will consume the rest of the input.
+		// Check that it matches its range.
+		if item.isList {
+			if len(args) < item.listMin {
+				return nil, fmt.Errorf("argument '%s' requires at least %d element(s)", item.Name, item.listMin)
+			}
+			if item.listMax > 0 && len(args) > item.listMax {
+				return nil, fmt.Errorf("argument '%s' requires at most %d element(s)", item.Name, item.listMax)
+			}
+		}
+
 		// If no arguments are left, simply set the default values.
 		if len(args) == 0 {
 			// Check, if the argument is mandatory.
@@ -130,28 +156,30 @@ func (a *Args) parse(args []string, res ArgMap) ([]string, error) {
 }
 
 // String registers a string argument.
-func (a *Args) String(name, help, defaultValue string, optional bool) {
-	a.register(name, help, "string", true, false, optional, defaultValue,
+func (a *Args) String(name, help string, opts ...ArgOption) {
+	a.register(name, help, "string", false,
 		func(args []string, res ArgMap) ([]string, error) {
 			res[name] = &ArgMapItem{Value: args[0]}
 			return args[1:], nil
 		},
+		opts...,
 	)
 }
 
 // StringList registers a string list argument.
-func (a *Args) StringList(name, help string, defaultValue []string, optional bool) {
-	a.register(name, help, "string list", true, true, optional, defaultValue,
+func (a *Args) StringList(name, help string, opts ...ArgOption) {
+	a.register(name, help, "string list", true,
 		func(args []string, res ArgMap) ([]string, error) {
 			res[name] = &ArgMapItem{Value: args}
 			return []string{}, nil
 		},
+		opts...,
 	)
 }
 
 // Bool registers a bool argument.
-func (a *Args) Bool(name, help string, defaultValue, optional bool) {
-	a.register(name, help, "bool", true, false, optional, defaultValue,
+func (a *Args) Bool(name, help string, opts ...ArgOption) {
+	a.register(name, help, "bool", false,
 		func(args []string, res ArgMap) ([]string, error) {
 
 			b, err := strconv.ParseBool(args[0])
@@ -162,12 +190,13 @@ func (a *Args) Bool(name, help string, defaultValue, optional bool) {
 			res[name] = &ArgMapItem{Value: b}
 			return args[1:], nil
 		},
+		opts...,
 	)
 }
 
 // BoolList registers a bool list argument.
-func (a *Args) BoolList(name, help string, defaultValue []bool, optional bool) {
-	a.register(name, help, "bool list", true, false, optional, defaultValue,
+func (a *Args) BoolList(name, help string, opts ...ArgOption) {
+	a.register(name, help, "bool list", true,
 		func(args []string, res ArgMap) ([]string, error) {
 
 			var (
@@ -184,12 +213,13 @@ func (a *Args) BoolList(name, help string, defaultValue []bool, optional bool) {
 			res[name] = &ArgMapItem{Value: bs}
 			return []string{}, nil
 		},
+		opts...,
 	)
 }
 
 // Int registers an int argument.
-func (a *Args) Int(name, help string, defaultValue int, optional bool) {
-	a.register(name, help, "int", true, false, optional, defaultValue,
+func (a *Args) Int(name, help string, opts ...ArgOption) {
+	a.register(name, help, "int", false,
 		func(args []string, res ArgMap) ([]string, error) {
 
 			i, err := strconv.Atoi(args[0])
@@ -200,12 +230,13 @@ func (a *Args) Int(name, help string, defaultValue int, optional bool) {
 			res[name] = &ArgMapItem{Value: i}
 			return args[1:], nil
 		},
+		opts...,
 	)
 }
 
 // IntList registers an int list argument.
-func (a *Args) IntList(name, help string, defaultValue []int, optional bool) {
-	a.register(name, help, "int list", true, false, optional, defaultValue,
+func (a *Args) IntList(name, help string, opts ...ArgOption) {
+	a.register(name, help, "int list", true,
 		func(args []string, res ArgMap) ([]string, error) {
 			var (
 				err error
@@ -221,12 +252,13 @@ func (a *Args) IntList(name, help string, defaultValue []int, optional bool) {
 			res[name] = &ArgMapItem{Value: is}
 			return []string{}, nil
 		},
+		opts...,
 	)
 }
 
 // Int64 registers an int64 argument.
-func (a *Args) Int64(name, help string, defaultValue int64, optional bool) {
-	a.register(name, help, "int64", true, false, optional, defaultValue,
+func (a *Args) Int64(name, help string, opts ...ArgOption) {
+	a.register(name, help, "int64", false,
 		func(args []string, res ArgMap) ([]string, error) {
 
 			i, err := strconv.ParseInt(args[0], 10, 64)
@@ -237,12 +269,13 @@ func (a *Args) Int64(name, help string, defaultValue int64, optional bool) {
 			res[name] = &ArgMapItem{Value: i}
 			return args[1:], nil
 		},
+		opts...,
 	)
 }
 
 // Int64List registers an int64 list argument.
-func (a *Args) Int64List(name, help string, defaultValue []int64, optional bool) {
-	a.register(name, help, "int64 list", true, false, optional, defaultValue,
+func (a *Args) Int64List(name, help string, opts ...ArgOption) {
+	a.register(name, help, "int64 list", true,
 		func(args []string, res ArgMap) ([]string, error) {
 			var (
 				err error
@@ -258,12 +291,13 @@ func (a *Args) Int64List(name, help string, defaultValue []int64, optional bool)
 			res[name] = &ArgMapItem{Value: is}
 			return []string{}, nil
 		},
+		opts...,
 	)
 }
 
 // Uint registers an uint argument.
-func (a *Args) Uint(name, help string, defaultValue uint, optional bool) {
-	a.register(name, help, "uint", true, false, optional, defaultValue,
+func (a *Args) Uint(name, help string, opts ...ArgOption) {
+	a.register(name, help, "uint", false,
 		func(args []string, res ArgMap) ([]string, error) {
 
 			i, err := strconv.ParseUint(args[0], 10, 64)
@@ -274,12 +308,13 @@ func (a *Args) Uint(name, help string, defaultValue uint, optional bool) {
 			res[name] = &ArgMapItem{Value: i}
 			return args[1:], nil
 		},
+		opts...,
 	)
 }
 
 // UintList registers an uint list argument.
-func (a *Args) UintList(name, help string, defaultValue []uint, optional bool) {
-	a.register(name, help, "uint list", true, false, optional, defaultValue,
+func (a *Args) UintList(name, help string, opts ...ArgOption) {
+	a.register(name, help, "uint list", true,
 		func(args []string, res ArgMap) ([]string, error) {
 			var (
 				err error
@@ -297,12 +332,13 @@ func (a *Args) UintList(name, help string, defaultValue []uint, optional bool) {
 			res[name] = &ArgMapItem{Value: is}
 			return []string{}, nil
 		},
+		opts...,
 	)
 }
 
 // Uint64 registers an uint64 argument.
-func (a *Args) Uint64(name, help string, defaultValue uint64, optional bool) {
-	a.register(name, help, "uint64", true, false, optional, defaultValue,
+func (a *Args) Uint64(name, help string, opts ...ArgOption) {
+	a.register(name, help, "uint64", false,
 		func(args []string, res ArgMap) ([]string, error) {
 
 			i, err := strconv.Atoi(args[0])
@@ -313,12 +349,13 @@ func (a *Args) Uint64(name, help string, defaultValue uint64, optional bool) {
 			res[name] = &ArgMapItem{Value: i}
 			return args[1:], nil
 		},
+		opts...,
 	)
 }
 
 // Uint64List registers an uint64 list argument.
-func (a *Args) Uint64List(name, help string, defaultValue []uint64, optional bool) {
-	a.register(name, help, "uint64 list", true, false, optional, defaultValue,
+func (a *Args) Uint64List(name, help string, opts ...ArgOption) {
+	a.register(name, help, "uint64 list", true,
 		func(args []string, res ArgMap) ([]string, error) {
 			var (
 				err error
@@ -334,12 +371,13 @@ func (a *Args) Uint64List(name, help string, defaultValue []uint64, optional boo
 			res[name] = &ArgMapItem{Value: is}
 			return []string{}, nil
 		},
+		opts...,
 	)
 }
 
 // Float64 registers a float64 argument.
-func (a *Args) Float64(name, help string, defaultValue float64, optional bool) {
-	a.register(name, help, "float64", true, false, optional, defaultValue,
+func (a *Args) Float64(name, help string, opts ...ArgOption) {
+	a.register(name, help, "float64", false,
 		func(args []string, res ArgMap) ([]string, error) {
 
 			i, err := strconv.ParseFloat(args[0], 64)
@@ -350,12 +388,13 @@ func (a *Args) Float64(name, help string, defaultValue float64, optional bool) {
 			res[name] = &ArgMapItem{Value: i}
 			return args[1:], nil
 		},
+		opts...,
 	)
 }
 
 // Float64List registers an float64 list argument.
-func (a *Args) Float64List(name, help string, defaultValue []float64, optional bool) {
-	a.register(name, help, "float64 list", true, false, optional, defaultValue,
+func (a *Args) Float64List(name, help string, opts ...ArgOption) {
+	a.register(name, help, "float64 list", true,
 		func(args []string, res ArgMap) ([]string, error) {
 			var (
 				err error
@@ -371,12 +410,13 @@ func (a *Args) Float64List(name, help string, defaultValue []float64, optional b
 			res[name] = &ArgMapItem{Value: is}
 			return []string{}, nil
 		},
+		opts...,
 	)
 }
 
 // Duration registers a duration argument.
-func (a *Args) Duration(name, help string, defaultValue time.Duration, optional bool) {
-	a.register(name, help, "duration", true, false, optional, defaultValue,
+func (a *Args) Duration(name, help string, opts ...ArgOption) {
+	a.register(name, help, "duration", false,
 		func(args []string, res ArgMap) ([]string, error) {
 
 			i, err := time.ParseDuration(args[0])
@@ -387,12 +427,13 @@ func (a *Args) Duration(name, help string, defaultValue time.Duration, optional 
 			res[name] = &ArgMapItem{Value: i}
 			return args[1:], nil
 		},
+		opts...,
 	)
 }
 
 // DurationList registers an duration list argument.
-func (a *Args) DurationList(name, help string, defaultValue []time.Duration, optional bool) {
-	a.register(name, help, "duration list", true, false, optional, defaultValue,
+func (a *Args) DurationList(name, help string, opts ...ArgOption) {
+	a.register(name, help, "duration list", true,
 		func(args []string, res ArgMap) ([]string, error) {
 			var (
 				err error
@@ -408,5 +449,6 @@ func (a *Args) DurationList(name, help string, defaultValue []time.Duration, opt
 			res[name] = &ArgMapItem{Value: is}
 			return []string{}, nil
 		},
+		opts...,
 	)
 }

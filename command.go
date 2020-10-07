@@ -58,10 +58,6 @@ type Command struct {
 	// Define all command arguments within this function.
 	Args func(a *Args)
 
-	// Deprecated: Use Args instead.
-	// Define if the command is allowed to get arguments.
-	AllowArgs bool
-
 	// Function to execute for the command.
 	Run func(c *Context) error
 
