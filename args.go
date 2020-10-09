@@ -181,7 +181,6 @@ func (a *Args) StringList(name, help string, opts ...ArgOption) {
 func (a *Args) Bool(name, help string, opts ...ArgOption) {
 	a.register(name, help, "bool", false,
 		func(args []string, res ArgMap) ([]string, error) {
-
 			b, err := strconv.ParseBool(args[0])
 			if err != nil {
 				return nil, fmt.Errorf("invalid bool value '%s' for argument: %s", args[0], name)
@@ -198,7 +197,6 @@ func (a *Args) Bool(name, help string, opts ...ArgOption) {
 func (a *Args) BoolList(name, help string, opts ...ArgOption) {
 	a.register(name, help, "bool list", true,
 		func(args []string, res ArgMap) ([]string, error) {
-
 			var (
 				err error
 				bs  = make([]bool, len(args))
@@ -221,7 +219,6 @@ func (a *Args) BoolList(name, help string, opts ...ArgOption) {
 func (a *Args) Int(name, help string, opts ...ArgOption) {
 	a.register(name, help, "int", false,
 		func(args []string, res ArgMap) ([]string, error) {
-
 			i, err := strconv.Atoi(args[0])
 			if err != nil {
 				return nil, fmt.Errorf("invalid int value '%s' for argument: %s", args[0], name)
@@ -260,7 +257,6 @@ func (a *Args) IntList(name, help string, opts ...ArgOption) {
 func (a *Args) Int64(name, help string, opts ...ArgOption) {
 	a.register(name, help, "int64", false,
 		func(args []string, res ArgMap) ([]string, error) {
-
 			i, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return nil, fmt.Errorf("invalid int64 value '%s' for argument: %s", args[0], name)
@@ -299,13 +295,12 @@ func (a *Args) Int64List(name, help string, opts ...ArgOption) {
 func (a *Args) Uint(name, help string, opts ...ArgOption) {
 	a.register(name, help, "uint", false,
 		func(args []string, res ArgMap) ([]string, error) {
-
-			i, err := strconv.ParseUint(args[0], 10, 64)
+			u, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return nil, fmt.Errorf("invalid uint value '%s' for argument: %s", args[0], name)
 			}
 
-			res[name] = &ArgMapItem{Value: i}
+			res[name] = &ArgMapItem{Value: uint(u)}
 			return args[1:], nil
 		},
 		opts...,
@@ -340,13 +335,12 @@ func (a *Args) UintList(name, help string, opts ...ArgOption) {
 func (a *Args) Uint64(name, help string, opts ...ArgOption) {
 	a.register(name, help, "uint64", false,
 		func(args []string, res ArgMap) ([]string, error) {
-
-			i, err := strconv.Atoi(args[0])
+			u, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return nil, fmt.Errorf("invalid uint64 value '%s' for argument: %s", args[0], name)
 			}
 
-			res[name] = &ArgMapItem{Value: i}
+			res[name] = &ArgMapItem{Value: u}
 			return args[1:], nil
 		},
 		opts...,
@@ -359,16 +353,16 @@ func (a *Args) Uint64List(name, help string, opts ...ArgOption) {
 		func(args []string, res ArgMap) ([]string, error) {
 			var (
 				err error
-				is  = make([]uint64, len(args))
+				us  = make([]uint64, len(args))
 			)
 			for i, a := range args {
-				is[i], err = strconv.ParseUint(a, 10, 64)
+				us[i], err = strconv.ParseUint(a, 10, 64)
 				if err != nil {
 					return nil, fmt.Errorf("invalid uint64 value '%s' for argument: %s", a, name)
 				}
 			}
 
-			res[name] = &ArgMapItem{Value: is}
+			res[name] = &ArgMapItem{Value: us}
 			return []string{}, nil
 		},
 		opts...,
@@ -379,13 +373,12 @@ func (a *Args) Uint64List(name, help string, opts ...ArgOption) {
 func (a *Args) Float64(name, help string, opts ...ArgOption) {
 	a.register(name, help, "float64", false,
 		func(args []string, res ArgMap) ([]string, error) {
-
-			i, err := strconv.ParseFloat(args[0], 64)
+			f, err := strconv.ParseFloat(args[0], 64)
 			if err != nil {
 				return nil, fmt.Errorf("invalid float64 value '%s' for argument: %s", args[0], name)
 			}
 
-			res[name] = &ArgMapItem{Value: i}
+			res[name] = &ArgMapItem{Value: f}
 			return args[1:], nil
 		},
 		opts...,
@@ -398,16 +391,16 @@ func (a *Args) Float64List(name, help string, opts ...ArgOption) {
 		func(args []string, res ArgMap) ([]string, error) {
 			var (
 				err error
-				is  = make([]float64, len(args))
+				fs  = make([]float64, len(args))
 			)
 			for i, a := range args {
-				is[i], err = strconv.ParseFloat(a, 64)
+				fs[i], err = strconv.ParseFloat(a, 64)
 				if err != nil {
 					return nil, fmt.Errorf("invalid float64 value '%s' for argument: %s", a, name)
 				}
 			}
 
-			res[name] = &ArgMapItem{Value: is}
+			res[name] = &ArgMapItem{Value: fs}
 			return []string{}, nil
 		},
 		opts...,
@@ -418,13 +411,12 @@ func (a *Args) Float64List(name, help string, opts ...ArgOption) {
 func (a *Args) Duration(name, help string, opts ...ArgOption) {
 	a.register(name, help, "duration", false,
 		func(args []string, res ArgMap) ([]string, error) {
-
-			i, err := time.ParseDuration(args[0])
+			d, err := time.ParseDuration(args[0])
 			if err != nil {
 				return nil, fmt.Errorf("invalid duration value '%s' for argument: %s", args[0], name)
 			}
 
-			res[name] = &ArgMapItem{Value: i}
+			res[name] = &ArgMapItem{Value: d}
 			return args[1:], nil
 		},
 		opts...,
@@ -437,16 +429,16 @@ func (a *Args) DurationList(name, help string, opts ...ArgOption) {
 		func(args []string, res ArgMap) ([]string, error) {
 			var (
 				err error
-				is  = make([]time.Duration, len(args))
+				ds  = make([]time.Duration, len(args))
 			)
 			for i, a := range args {
-				is[i], err = time.ParseDuration(a)
+				ds[i], err = time.ParseDuration(a)
 				if err != nil {
 					return nil, fmt.Errorf("invalid duration value '%s' for argument: %s", a, name)
 				}
 			}
 
-			res[name] = &ArgMapItem{Value: is}
+			res[name] = &ArgMapItem{Value: ds}
 			return []string{}, nil
 		},
 		opts...,
