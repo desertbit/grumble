@@ -22,36 +22,50 @@
  * SOFTWARE.
  */
 
-package cmd
+package grumble
 
-import (
-	"strings"
-	"time"
+// ArgOption can be supplied to modify an argument.
+type ArgOption func(*argItem)
 
-	"github.com/desertbit/grumble"
-)
+// Min sets the minimum required number of elements for a list argument.
+func Min(m int) ArgOption {
+	if m < 0 {
+		panic("min must be >= 0")
+	}
 
-func init() {
-	App.AddCommand(&grumble.Command{
-		Name:    "daemon",
-		Help:    "run the daemon",
-		Aliases: []string{"run"},
-		Flags: func(f *grumble.Flags) {
-			f.Duration("t", "timeout", time.Second, "timeout duration")
-		},
-		Args: func(a *grumble.Args) {
-			a.Bool("production", "whether to start the daemon in production or development mode")
-			a.Int("opt-level", "the optimization mode", grumble.Default(3))
-			a.StringList("services", "additional services that should be started", grumble.Default([]string{"test", "te11"}))
-		},
-		Run: func(c *grumble.Context) error {
-			c.App.Println("timeout:", c.Flags.Duration("timeout"))
-			c.App.Println("directory:", c.Flags.String("directory"))
-			c.App.Println("verbose:", c.Flags.Bool("verbose"))
-			c.App.Println("production:", c.Args.Bool("production"))
-			c.App.Println("opt-level:", c.Args.Int("opt-level"))
-			c.App.Println("services:", strings.Join(c.Args.StringList("services"), ","))
-			return nil
-		},
-	})
+	return func(i *argItem) {
+		if !i.isList {
+			panic("min option only valid for list arguments")
+		}
+
+		i.listMin = m
+	}
+}
+
+// Max sets the maximum required number of elements for a list argument.
+func Max(m int) ArgOption {
+	if m < 1 {
+		panic("max must be >= 1")
+	}
+
+	return func(i *argItem) {
+		if !i.isList {
+			panic("max option only valid for list arguments")
+		}
+
+		i.listMax = m
+	}
+}
+
+// Default sets a default value for the argument.
+// The argument becomes optional then.
+func Default(v interface{}) ArgOption {
+	if v == nil {
+		panic("nil default value not allowed")
+	}
+
+	return func(i *argItem) {
+		i.Default = v
+		i.optional = true
+	}
 }

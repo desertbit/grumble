@@ -25,6 +25,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -33,24 +34,27 @@ import (
 
 func init() {
 	App.AddCommand(&grumble.Command{
-		Name:    "daemon",
-		Help:    "run the daemon",
-		Aliases: []string{"run"},
-		Flags: func(f *grumble.Flags) {
-			f.Duration("t", "timeout", time.Second, "timeout duration")
-		},
+		Name: "args",
+		Help: "test args",
 		Args: func(a *grumble.Args) {
-			a.Bool("production", "whether to start the daemon in production or development mode")
-			a.Int("opt-level", "the optimization mode", grumble.Default(3))
-			a.StringList("services", "additional services that should be started", grumble.Default([]string{"test", "te11"}))
+			a.String("s", "test string")
+			a.Duration("d", "test duration", grumble.Default(time.Second))
+			a.Int("i", "test int", grumble.Default(5))
+			a.Int64("i64", "test int64", grumble.Default(int64(-88)))
+			a.Uint("u", "test uint", grumble.Default(uint(66)))
+			a.Uint64("u64", "test uint64", grumble.Default(uint64(8888)))
+			a.Float64("f64", "test float64", grumble.Default(float64(5.889)))
+			a.StringList("sl", "test string list", grumble.Default([]string{"first", "second", "third"}), grumble.Max(3))
 		},
 		Run: func(c *grumble.Context) error {
-			c.App.Println("timeout:", c.Flags.Duration("timeout"))
-			c.App.Println("directory:", c.Flags.String("directory"))
-			c.App.Println("verbose:", c.Flags.Bool("verbose"))
-			c.App.Println("production:", c.Args.Bool("production"))
-			c.App.Println("opt-level:", c.Args.Int("opt-level"))
-			c.App.Println("services:", strings.Join(c.Args.StringList("services"), ","))
+			fmt.Println("s  ", c.Args.String("s"))
+			fmt.Println("d  ", c.Args.Duration("d"))
+			fmt.Println("i  ", c.Args.Int("i"))
+			fmt.Println("i64", c.Args.Int64("i64"))
+			fmt.Println("u  ", c.Args.Uint("u"))
+			fmt.Println("u64", c.Args.Uint64("u64"))
+			fmt.Println("f64", c.Args.Float64("f64"))
+			fmt.Println("sl ", strings.Join(c.Args.StringList("sl"), ","))
 			return nil
 		},
 	})

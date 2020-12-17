@@ -32,8 +32,8 @@ import (
 	"time"
 )
 
-type parseFunc func(flag, equalVal string, args []string, res FlagMap) ([]string, bool, error)
-type defaultFunc func(res FlagMap)
+type parseFlagFunc func(flag, equalVal string, args []string, res FlagMap) ([]string, bool, error)
+type defaultFlagFunc func(res FlagMap)
 
 type flagItem struct {
 	Short           string
@@ -46,9 +46,14 @@ type flagItem struct {
 
 // Flags holds all the registered flags.
 type Flags struct {
-	parsers  []parseFunc
-	defaults map[string]defaultFunc
+	parsers  []parseFlagFunc
+	defaults map[string]defaultFlagFunc
 	list     []*flagItem
+}
+
+// empty returns true, if the flags are empty.
+func (f *Flags) empty() bool {
+	return len(f.list) == 0
 }
 
 // sort the flags by their name.
@@ -62,8 +67,8 @@ func (f *Flags) register(
 	short, long, help, helpArgs string,
 	helpShowDefault bool,
 	defaultValue interface{},
-	df defaultFunc,
-	pf parseFunc,
+	df defaultFlagFunc,
+	pf parseFlagFunc,
 ) {
 	// Validate.
 	if len(short) > 1 {
@@ -88,7 +93,7 @@ func (f *Flags) register(
 	})
 
 	if f.defaults == nil {
-		f.defaults = make(map[string]defaultFunc)
+		f.defaults = make(map[string]defaultFlagFunc)
 	}
 	f.defaults[long] = df
 
