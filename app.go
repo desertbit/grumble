@@ -132,6 +132,12 @@ func (a *App) PrintError(err error) {
 	}
 }
 
+// Print writes to terminal output.
+// Print writes to standard output if terminal output is not yet active.
+func (a *App) Print(args ...interface{}) (int, error) {
+	return fmt.Fprint(a, args...)
+}
+
 // Printf formats according to a format specifier and writes to terminal output.
 // Printf writes to standard output if terminal output is not yet active.
 func (a *App) Printf(format string, args ...interface{}) (int, error) {
