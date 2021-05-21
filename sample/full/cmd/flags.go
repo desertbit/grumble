@@ -42,6 +42,7 @@ func init() {
 			f.Uint("u", "uint", 3, "test uint")
 			f.Uint64("j", "uint64", 4, "test uint64")
 			f.Float64("f", "float", 5.55, "test float64")
+			f.StringSlice("H","Headers",[]string{},"string slice")
 		},
 		Run: func(c *grumble.Context) error {
 			fmt.Println("duration ", c.Flags.Duration("duration"))
@@ -50,6 +51,7 @@ func init() {
 			fmt.Println("uint     ", c.Flags.Uint("uint"))
 			fmt.Println("uint64   ", c.Flags.Uint64("uint64"))
 			fmt.Println("float    ", c.Flags.Float64("float"))
+			fmt.Println("StringSLice",c.Flags.StringSlice("Headers"))
 			return nil
 		},
 	})
