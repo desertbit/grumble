@@ -202,6 +202,76 @@ func (f *Flags) String(short, long, defaultValue, help string) {
 		})
 }
 
+//210521: JC0o0l Add
+// StringSlice registers a stringSlice flag.
+func (f *Flags) StringSlice(short, long string, defaultValue []string, help string) {
+	f.register(short, long, help, "stringSlice", true, defaultValue,
+		func(res FlagMap) {
+			res[long] = &FlagMapItem{
+				Value:     []interface{}{},
+				IsDefault: true,
+			}
+			for _, v := range defaultValue {
+				res[long].Value = append(res[long].Value.([]interface{}), v)
+			}
+
+		},
+		func(flag, equalVal string, args []string, res FlagMap) ([]string, bool, error) {
+			//defer func(){
+			//	jlog.Debug(args)
+			//}()
+			//jlog.Debug(flag,equalVal,args,res)
+			if !f.match(flag, short, long) {
+				return args, false, nil
+			}
+			if len(equalVal) > 0 {
+				//res[long] = &FlagMapItem{
+				//	Value:     trimQuotes(equalVal),
+				//	IsDefault: false,
+				//}
+				if res[long] != nil {
+					//res[long] = &FlagMapItem{
+					//	Value:     append(res[long].Value.([]interface{}),args[0]),
+					//	IsDefault: false,
+					//}
+					res[long].Value = append(res[long].Value.([]interface{}), trimQuotes(equalVal))
+					res[long].IsDefault = false
+				} else {
+					res[long] = &FlagMapItem{
+						Value:     make([]interface{}, 0),
+						IsDefault: false,
+					}
+					res[long].Value = append(res[long].Value.([]interface{}), trimQuotes(equalVal))
+					res[long].IsDefault = false
+				}
+				return args, true, nil
+			}
+			if len(args) == 0 {
+				return args, false, fmt.Errorf("missing string value for flag: %s", flag)
+			}
+			if res[long] != nil {
+				//res[long] = &FlagMapItem{
+				//	Value:     append(res[long].Value.([]interface{}),args[0]),
+				//	IsDefault: false,
+				//}
+				res[long].Value = append(res[long].Value.([]interface{}), args[0])
+				res[long].IsDefault = false
+			} else {
+				res[long] = &FlagMapItem{
+					Value:     make([]interface{}, 0),
+					IsDefault: false,
+				}
+				res[long].Value = append(res[long].Value.([]interface{}), args[0])
+				res[long].IsDefault = false
+			}
+
+			//jlog.Debug("grumble flags:",args)
+			args = args[1:]
+			return args, true, nil
+		})
+}
+//JC0o0l End
+
 // BoolL same as Bool, but without a shorthand.
 func (f *Flags) BoolL(long string, defaultValue bool, help string) {
 	f.Bool("", long, defaultValue, help)
