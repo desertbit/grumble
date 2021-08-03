@@ -117,9 +117,6 @@ func (f *Flags) match(flag, short, long string) bool {
 }
 
 func (f *Flags) parse(args []string, res FlagMap) ([]string, error) {
-	var err error
-	var parsed bool
-
 	// Parse all leading flags.
 Loop:
 	for len(args) > 0 {
@@ -127,7 +124,6 @@ Loop:
 		if !strings.HasPrefix(a, "-") {
 			break Loop
 		}
-		args = args[1:]
 		pos := strings.Index(a, "=")
 		equalVal := ""
 		if pos > 0 {
@@ -135,15 +131,20 @@ Loop:
 			a = a[:pos]
 		}
 
+		matched := false
 		for _, p := range f.parsers {
-			args, parsed, err = p(a, equalVal, args, res)
+			restArgs, parsed, err := p(a, equalVal, args[1:], res)
 			if err != nil {
 				return nil, err
 			} else if parsed {
+				args = restArgs
+				matched = true
 				continue Loop
 			}
 		}
-		return nil, fmt.Errorf("invalid flag: %s", a)
+		if !matched {
+			break Loop
+		}
 	}
 
 	// Finally set all the default values for not passed flags.
