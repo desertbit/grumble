@@ -26,15 +26,35 @@ package cmd
 
 import (
 	"errors"
+	"os"
+	"os/user"
 	"strings"
 	"time"
 
 	"github.com/desertbit/grumble"
+	"github.com/fatih/color"
 )
 
 var App = grumble.New(&grumble.Config{
 	Name:        "foo",
-	Description: "An awesome foo bar",
+	Description: "An awesome foo bar with runtime prompt",
+	PromptRuntime: func() string {
+		username := "NO-USER"
+		hostname := "NO-HOSTNAME"
+		if user, err := user.Current(); err == nil {
+			username = user.Username
+		}
+		if host, _ := os.Hostname(); host != "" {
+			hostname = host
+		}
+		return color.New().Sprintf("%s %s@%s %s » ",
+			color.New(color.FgBlue, color.Italic).Sprint("foo"),
+			color.New(color.FgGreen).Sprint(username),
+			color.New(color.FgYellow).Sprint(hostname),
+			color.New(color.FgMagenta, color.Faint).Sprintf("[%s]",
+				time.Now().Format("01-02 15:04:05")),
+		)
+	},
 	Flags: func(f *grumble.Flags) {
 		f.String("d", "directory", "DEFAULT", "set an alternative root directory path")
 		f.Bool("v", "verbose", false, "enable verbose mode")

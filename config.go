@@ -55,8 +55,9 @@ type Config struct {
 	NoColor bool
 
 	// Prompt defines the shell prompt.
-	Prompt      string
-	PromptColor *color.Color
+	Prompt        string
+	PromptColor   *color.Color
+	PromptRuntime func() string
 
 	// MultiPrompt defines the prompt shown on multi readline.
 	MultiPrompt      string
@@ -83,6 +84,14 @@ func (c *Config) SetDefaults() {
 	if len(c.Prompt) == 0 {
 		c.Prompt = c.Name + " » "
 	}
+	if c.PromptRuntime == nil {
+		c.PromptRuntime = func() string {
+			if c.NoColor {
+				return c.Prompt
+			}
+			return c.PromptColor.Sprint(c.Prompt)
+		}
+	}
 	if c.MultiPromptColor == nil {
 		c.MultiPromptColor = c.PromptColor
 	}
@@ -106,10 +115,7 @@ func (c *Config) Validate() error {
 }
 
 func (c *Config) prompt() string {
-	if c.NoColor {
-		return c.Prompt
-	}
-	return c.PromptColor.Sprint(c.Prompt)
+	return c.PromptRuntime()
 }
 
 func (c *Config) multiPrompt() string {

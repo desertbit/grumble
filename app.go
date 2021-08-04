@@ -44,7 +44,7 @@ type App struct {
 	config        *Config
 	commands      Commands
 	isShell       bool
-	currentPrompt string
+	currentPrompt func() string
 
 	flags   Flags
 	flagMap FlagMap
@@ -74,7 +74,7 @@ func New(c *Config) (a *App) {
 	a = &App{
 		Closer:           closer.New(),
 		config:           c,
-		currentPrompt:    c.prompt(),
+		currentPrompt:    c.prompt,
 		flagMap:          make(FlagMap),
 		printHelp:        defaultPrintHelp,
 		printCommandHelp: defaultPrintCommandHelp,
@@ -98,13 +98,13 @@ func (a *App) SetPrompt(p string) {
 	if !a.config.NoColor {
 		p = a.config.PromptColor.Sprint(p)
 	}
-	a.currentPrompt = p
+	a.currentPrompt = func() string { return p }
 }
 
 // SetDefaultPrompt resets the current prompt to the default prompt as
 // configured in the config.
 func (a *App) SetDefaultPrompt() {
-	a.currentPrompt = a.config.prompt()
+	a.currentPrompt = a.config.prompt
 }
 
 // IsShell indicates, if this is a shell session.
@@ -364,7 +364,7 @@ func (a *App) Run() (err error) {
 
 	// Create the readline instance.
 	a.rl, err = readline.NewEx(&readline.Config{
-		Prompt:                 a.currentPrompt,
+		Prompt:                 a.currentPrompt(),
 		HistorySearchFold:      true, // enable case-insensitive history searching
 		DisableAutoSaveHistory: true,
 		HistoryFile:            a.config.HistoryFile,
@@ -404,7 +404,7 @@ Loop:
 		if multiActive {
 			a.rl.SetPrompt(a.config.multiPrompt())
 		} else {
-			a.rl.SetPrompt(a.currentPrompt)
+			a.rl.SetPrompt(a.currentPrompt())
 		}
 		multiActive = false
 
