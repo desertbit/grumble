@@ -71,12 +71,10 @@ func (f FlagMap) StringSlice(long string) []string {
 	if i == nil {
 		panic(fmt.Errorf("missing flag value: flag '%s' not registered", long))
 	}
-	s := make([]string, 0)
-	if len(i.Value.([]interface{})) == 0 {
-		return s
-	}
-	for _, v := range i.Value.([]interface{}) {
-		s = append(s, v.(string))
+	sliceCount := len(i.Value.([]interface{}))
+	s := make([]string, sliceCount)
+	for k, v := range i.Value.([]interface{}) {
+		s[k] = v.(string)
 	}
 	return s
 }

@@ -42,16 +42,16 @@ func init() {
 			f.Uint("u", "uint", 3, "test uint")
 			f.Uint64("j", "uint64", 4, "test uint64")
 			f.Float64("f", "float", 5.55, "test float64")
-			f.StringSlice("H","Headers",[]string{},"string slice")
+			f.StringSlice("s", "stringSlice", []string{}, "test stringSlice")
 		},
 		Run: func(c *grumble.Context) error {
-			fmt.Println("duration ", c.Flags.Duration("duration"))
-			fmt.Println("int      ", c.Flags.Int("int"))
-			fmt.Println("int64    ", c.Flags.Int64("int64"))
-			fmt.Println("uint     ", c.Flags.Uint("uint"))
-			fmt.Println("uint64   ", c.Flags.Uint64("uint64"))
-			fmt.Println("float    ", c.Flags.Float64("float"))
-			fmt.Println("StringSLice",c.Flags.StringSlice("Headers"))
+			fmt.Println("duration    ", c.Flags.Duration("duration"))
+			fmt.Println("int         ", c.Flags.Int("int"))
+			fmt.Println("int64       ", c.Flags.Int64("int64"))
+			fmt.Println("uint        ", c.Flags.Uint("uint"))
+			fmt.Println("uint64      ", c.Flags.Uint64("uint64"))
+			fmt.Println("float       ", c.Flags.Float64("float"))
+			fmt.Println("stringSlice ", c.Flags.StringSlice("stringSlice"))
 			return nil
 		},
 	})

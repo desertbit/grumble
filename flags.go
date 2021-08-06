@@ -220,33 +220,27 @@ func (f *Flags) StringSlice(short, long string, defaultValue []string, help stri
 				return args, false, nil
 			}
 			if len(equalVal) > 0 {
-				if res[long] != nil {
-					res[long].Value = append(res[long].Value.([]interface{}), trimQuotes(equalVal))
-					res[long].IsDefault = false
-				} else {
+				if res[long] == nil {
 					res[long] = &FlagMapItem{
 						Value:     make([]interface{}, 0),
 						IsDefault: false,
 					}
-					res[long].Value = append(res[long].Value.([]interface{}), trimQuotes(equalVal))
-					res[long].IsDefault = false
 				}
+				res[long].Value = append(res[long].Value.([]interface{}), trimQuotes(equalVal))
+				res[long].IsDefault = false
 				return args, true, nil
 			}
 			if len(args) == 0 {
 				return args, false, fmt.Errorf("missing string value for flag: %s", flag)
 			}
-			if res[long] != nil {
-				res[long].Value = append(res[long].Value.([]interface{}), args[0])
-				res[long].IsDefault = false
-			} else {
+			if res[long] == nil {
 				res[long] = &FlagMapItem{
 					Value:     make([]interface{}, 0),
 					IsDefault: false,
 				}
-				res[long].Value = append(res[long].Value.([]interface{}), args[0])
-				res[long].IsDefault = false
 			}
+			res[long].Value = append(res[long].Value.([]interface{}), args[0])
+			res[long].IsDefault = false
 
 			args = args[1:]
 			return args, true, nil
