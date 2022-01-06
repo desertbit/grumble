@@ -118,6 +118,7 @@ func (a *App) Config() *Config {
 }
 
 // Commands returns the app's commands.
+// Access is not thread-safe. Only access during command execution.
 func (a *App) Commands() *Commands {
 	return &a.commands
 }
@@ -323,6 +324,7 @@ func (a *App) Run() (err error) {
 			a.printCommandHelp(a, cmd, a.isShell)
 			return nil
 		},
+		isBuiltin: true,
 	}, false)
 
 	// Check if help should be displayed.
@@ -342,6 +344,7 @@ func (a *App) Run() (err error) {
 				c.Stop()
 				return nil
 			},
+			isBuiltin: true,
 		})
 		a.AddCommand(&Command{
 			Name: "clear",
@@ -350,6 +353,7 @@ func (a *App) Run() (err error) {
 				readline.ClearScreen(a.rl)
 				return nil
 			},
+			isBuiltin: true,
 		})
 	}
 
@@ -465,7 +469,13 @@ Loop:
 		err = a.RunCommand(args)
 		if err != nil {
 			a.PrintError(err)
-			continue Loop
+			// Do not continue the Loop here. We want to handle command changes below.
+		}
+
+		// Sort the commands again if they have changed (Add or remove action).
+		if a.commands.hasChanged() {
+			a.commands.SortRecursive()
+			a.commands.unsetChanged()
 		}
 	}
 
