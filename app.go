@@ -331,6 +331,28 @@ func (a *App) Run() (err error) {
 		return nil
 	}
 
+	// Add shell builtin commands.
+	// Ensure to add all commands before running the init hook.
+	// If the init hook does something with the app commands, then these should also be included.
+	if a.isShell {
+		a.AddCommand(&Command{
+			Name: "exit",
+			Help: "exit the shell",
+			Run: func(c *Context) error {
+				c.Stop()
+				return nil
+			},
+		})
+		a.AddCommand(&Command{
+			Name: "clear",
+			Help: "clear the screen",
+			Run: func(c *Context) error {
+				readline.ClearScreen(a.rl)
+				return nil
+			},
+		})
+	}
+
 	// Run the init hook.
 	if a.initHook != nil {
 		err = a.initHook(a, a.flagMap)
@@ -343,24 +365,6 @@ func (a *App) Run() (err error) {
 	if !a.isShell {
 		return a.RunCommand(args)
 	}
-
-	// Add shell builtin commands.
-	a.AddCommand(&Command{
-		Name: "exit",
-		Help: "exit the shell",
-		Run: func(c *Context) error {
-			c.Stop()
-			return nil
-		},
-	})
-	a.AddCommand(&Command{
-		Name: "clear",
-		Help: "clear the screen",
-		Run: func(c *Context) error {
-			readline.ClearScreen(a.rl)
-			return nil
-		},
-	})
 
 	// Create the readline instance.
 	a.rl, err = readline.NewEx(&readline.Config{
