@@ -87,6 +87,10 @@ Check out the [sample directory](/sample) for some detailed examples.
 
 The [grml project](https://github.com/desertbit/grml) uses grumble.
 
+## Projects using Grumble
+
+- grml - A simple build automation tool written in Go: https://github.com/desertbit/grml
+
 ## Additional Useful Packages
 
 - https://github.com/AlecAivazis/survey
