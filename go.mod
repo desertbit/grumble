@@ -4,8 +4,6 @@ go 1.12
 
 require (
 	github.com/Netflix/go-expect v0.0.0-20190729225929-0e00d9168667 // indirect
-	github.com/chzyer/logex v1.1.10 // indirect
-	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/desertbit/closer/v3 v3.1.2
 	github.com/desertbit/columnize v2.1.0+incompatible
