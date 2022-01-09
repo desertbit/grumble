@@ -88,15 +88,19 @@ There are some exceptions/additions to this:
 - bool: `cmd --boolflag` offer a third option that does require a value
 - string: `cmd --stringflag="some test string"` leads to value `some test string`, as double quotes are stripped from the value
 
+## Separate flags and args specifically
+
+If you need to pass a flag-like value as positional argument, you can do so by using a double dash:  
+`>>> command --flag1=something -- --myPositionalArg`
+
 ## Samples
 
 Check out the [sample directory](/sample) for some detailed examples.
 
-The [grml project](https://github.com/desertbit/grml) uses grumble.
-
 ## Projects using Grumble
 
 - grml - A simple build automation tool written in Go: https://github.com/desertbit/grml
+- orbit - A RPC-like networking backend written in Go: https://github.com/desertbit/orbit
 
 ## Additional Useful Packages
 
