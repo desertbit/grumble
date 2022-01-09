@@ -81,6 +81,13 @@ Builtin support for multiple lines.
 ... command
 ```
 
+## Flags
+
+You can pass flags in two ways: `cmd --flag value` or `cmd --flag=value`  
+There are some exceptions/additions to this:  
+- bool: `cmd --boolflag` offer a third option that does require a value
+- string: `cmd --stringflag="some test string"` leads to value `some test string`, as double quotes are stripped from the value
+
 ## Samples
 
 Check out the [sample directory](/sample) for some detailed examples.
