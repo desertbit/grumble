@@ -85,7 +85,7 @@ Builtin support for multiple lines.
 
 You can pass flags in two ways: `cmd --flag value` or `cmd --flag=value`  
 There are some exceptions/additions to this:  
-- bool: `cmd --boolflag` offer a third option that does require a value
+- bool: `cmd --boolflag` offer a third option that does not require a value
 - string: `cmd --stringflag="some test string"` leads to value `some test string`, as double quotes are stripped from the value
 
 ## Separate flags and args specifically
