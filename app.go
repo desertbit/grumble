@@ -25,6 +25,7 @@
 package grumble
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -48,8 +49,6 @@ type App struct {
 
 	flags   Flags
 	flagMap FlagMap
-
-	args Args
 
 	initHook  func(a *App, flags FlagMap) error
 	shellHook func(a *App) error
@@ -239,7 +238,7 @@ func (a *App) RunCommand(args []string) error {
 	if err != nil {
 		return err
 	} else if len(cmds) == 0 {
-		return fmt.Errorf("unknown command, try 'help'")
+		return errors.New("unknown command, try 'help'")
 	}
 
 	// The last command is the final command.
