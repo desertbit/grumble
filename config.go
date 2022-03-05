@@ -54,6 +54,9 @@ type Config struct {
 	// NoColor defines if color output should be disabled.
 	NoColor bool
 
+	// VimMode defines if Readline is to use VimMode for line navigation.
+	VimMode bool
+
 	// Prompt defines the shell prompt.
 	Prompt      string
 	PromptColor *color.Color

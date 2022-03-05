@@ -378,6 +378,7 @@ func (a *App) Run() (err error) {
 		HistoryFile:            a.config.HistoryFile,
 		HistoryLimit:           a.config.HistoryLimit,
 		AutoComplete:           newCompleter(&a.commands),
+		VimMode:                a.config.VimMode,
 	})
 	if err != nil {
 		return err
