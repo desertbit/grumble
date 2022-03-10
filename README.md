@@ -94,6 +94,9 @@ Check out the [sample directory](/sample) for some detailed examples.
 - grml - A simple build automation tool written in Go: https://github.com/desertbit/grml
 - orbit - A RPC-like networking backend written in Go: https://github.com/desertbit/orbit
 
+## Known issues
+- Windows unicode not fully supported ([issue](https://github.com/desertbit/grumble/issues/48))
+
 ## Additional Useful Packages
 
 - https://github.com/AlecAivazis/survey
