@@ -80,6 +80,9 @@ func New(c *Config) (a *App) {
 		printCommandHelp: defaultPrintCommandHelp,
 		interruptHandler: defaultInterruptHandler,
 	}
+	if c.InterruptHandler != nil {
+		a.interruptHandler = c.InterruptHandler
+	}
 
 	// Register the builtin flags.
 	a.flags.Bool("h", "help", false, "display help")
@@ -278,7 +281,32 @@ func (a *App) RunCommand(args []string) error {
 // Run the application and parse the command line arguments.
 // This method blocks.
 func (a *App) Run() (err error) {
+	// Create the readline instance.
+	rl, err := readline.NewEx(&readline.Config{
+		Prompt:                 a.currentPrompt,
+		HistorySearchFold:      true, // enable case-insensitive history searching
+		DisableAutoSaveHistory: true,
+		HistoryFile:            a.config.HistoryFile,
+		HistoryLimit:           a.config.HistoryLimit,
+		AutoComplete:           newCompleter(&a.commands),
+		VimMode:                a.config.VimMode,
+	})
+	if err != nil {
+		return err
+	}
+	return a.RunWithReadline(rl)
+}
+
+func (a *App) RunWithReadline(rl *readline.Instance) (err error) {
 	defer a.Close()
+
+	rl.Config.Prompt = a.currentPrompt
+	rl.Config.HistorySearchFold = true
+	rl.Config.DisableAutoSaveHistory = true
+	rl.Config.HistoryFile = a.config.HistoryFile
+	rl.Config.HistoryLimit = a.config.HistoryLimit
+	rl.Config.AutoComplete = newCompleter(&a.commands)
+	rl.Config.VimMode = a.config.VimMode
 
 	// Sort all commands by their name.
 	a.commands.SortRecursive()
@@ -370,19 +398,8 @@ func (a *App) Run() (err error) {
 		return a.RunCommand(args)
 	}
 
-	// Create the readline instance.
-	a.rl, err = readline.NewEx(&readline.Config{
-		Prompt:                 a.currentPrompt,
-		HistorySearchFold:      true, // enable case-insensitive history searching
-		DisableAutoSaveHistory: true,
-		HistoryFile:            a.config.HistoryFile,
-		HistoryLimit:           a.config.HistoryLimit,
-		AutoComplete:           newCompleter(&a.commands),
-		VimMode:                a.config.VimMode,
-	})
-	if err != nil {
-		return err
-	}
+	// Assign readline instance
+	a.rl = rl
 	a.OnClose(a.rl.Close)
 
 	// Run the shell hook.
