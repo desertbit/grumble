@@ -282,15 +282,9 @@ func (a *App) RunCommand(args []string) error {
 // This method blocks.
 func (a *App) Run() (err error) {
 	// Create the readline instance.
-	rl, err := readline.NewEx(&readline.Config{
-		Prompt:                 a.currentPrompt,
-		HistorySearchFold:      true, // enable case-insensitive history searching
-		DisableAutoSaveHistory: true,
-		HistoryFile:            a.config.HistoryFile,
-		HistoryLimit:           a.config.HistoryLimit,
-		AutoComplete:           newCompleter(&a.commands),
-		VimMode:                a.config.VimMode,
-	})
+	config := &readline.Config{}
+	a.setReadlineDefaults(config)
+	rl, err := readline.NewEx(config)
 	if err != nil {
 		return err
 	}
@@ -300,13 +294,7 @@ func (a *App) Run() (err error) {
 func (a *App) RunWithReadline(rl *readline.Instance) (err error) {
 	defer a.Close()
 
-	rl.Config.Prompt = a.currentPrompt
-	rl.Config.HistorySearchFold = true
-	rl.Config.DisableAutoSaveHistory = true
-	rl.Config.HistoryFile = a.config.HistoryFile
-	rl.Config.HistoryLimit = a.config.HistoryLimit
-	rl.Config.AutoComplete = newCompleter(&a.commands)
-	rl.Config.VimMode = a.config.VimMode
+	a.setReadlineDefaults(rl.Config)
 
 	// Sort all commands by their name.
 	a.commands.SortRecursive()
@@ -417,6 +405,16 @@ func (a *App) RunWithReadline(rl *readline.Instance) (err error) {
 
 	// Run the shell.
 	return a.runShell()
+}
+
+func (a *App) setReadlineDefaults(config *readline.Config) {
+	config.Prompt = a.currentPrompt
+	config.HistorySearchFold = true
+	config.DisableAutoSaveHistory = true
+	config.HistoryFile = a.config.HistoryFile
+	config.HistoryLimit = a.config.HistoryLimit
+	config.AutoComplete = newCompleter(&a.commands)
+	config.VimMode = a.config.VimMode
 }
 
 func (a *App) runShell() error {
