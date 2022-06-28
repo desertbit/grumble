@@ -62,7 +62,17 @@ type App struct {
 
 // New creates a new app.
 // Panics if the config is invalid.
-func New(c *Config) (a *App) {
+func New(c *Config) (a *App, err error) {
+	// Create the readline instance.
+	config := &readline.Config{}
+	rl, err := readline.NewEx(config)
+	if err != nil {
+		return nil, err
+	}
+	return NewWithReadline(c, rl), nil
+}
+
+func NewWithReadline(c *Config, rl *readline.Instance) (a *App) {
 	// Prepare the config.
 	c.SetDefaults()
 	err := c.Validate()
@@ -83,6 +93,9 @@ func New(c *Config) (a *App) {
 	if c.InterruptHandler != nil {
 		a.interruptHandler = c.InterruptHandler
 	}
+	// Assign readline instance
+	a.rl = rl
+	a.setReadlineDefaults(rl.Config)
 
 	// Register the builtin flags.
 	a.flags.Bool("h", "help", false, "display help")
@@ -196,13 +209,8 @@ func (a *App) Write(p []byte) (int, error) {
 	return a.Stdout().Write(p)
 }
 
-// Stdout returns a writer to Stdout, using readline if available.
-// Note that calling before Run() will return a different instance.
 func (a *App) Stdout() io.Writer {
-	if a.rl != nil {
-		return a.rl.Stdout()
-	}
-	return os.Stdout
+	return a.rl.Stdout()
 }
 
 // Stderr returns a writer to Stderr, using readline if available.
@@ -281,20 +289,7 @@ func (a *App) RunCommand(args []string) error {
 // Run the application and parse the command line arguments.
 // This method blocks.
 func (a *App) Run() (err error) {
-	// Create the readline instance.
-	config := &readline.Config{}
-	a.setReadlineDefaults(config)
-	rl, err := readline.NewEx(config)
-	if err != nil {
-		return err
-	}
-	return a.RunWithReadline(rl)
-}
-
-func (a *App) RunWithReadline(rl *readline.Instance) (err error) {
 	defer a.Close()
-
-	a.setReadlineDefaults(rl.Config)
 
 	// Sort all commands by their name.
 	a.commands.SortRecursive()
@@ -386,8 +381,6 @@ func (a *App) RunWithReadline(rl *readline.Instance) (err error) {
 		return a.RunCommand(args)
 	}
 
-	// Assign readline instance
-	a.rl = rl
 	a.OnClose(a.rl.Close)
 
 	// Run the shell hook.

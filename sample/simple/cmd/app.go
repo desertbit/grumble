@@ -32,7 +32,7 @@ import (
 	"github.com/desertbit/grumble"
 )
 
-var App = grumble.New(&grumble.Config{
+var App, _ = grumble.New(&grumble.Config{
 	Name:        "foo",
 	Description: "An awesome foo bar",
 	Flags: func(f *grumble.Flags) {

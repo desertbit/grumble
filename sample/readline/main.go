@@ -8,7 +8,7 @@ import (
 
 func main() {
 	handleFunc := func(rl *readline.Instance) {
-		var app = grumble.New(&grumble.Config{
+		app := grumble.NewWithReadline(&grumble.Config{
 			Name:        "app",
 			Description: "short app description",
 			InterruptHandler: func(a *grumble.App, count int) {
@@ -18,7 +18,7 @@ func main() {
 				f.String("d", "directory", "DEFAULT", "set an alternative directory path")
 				f.Bool("v", "verbose", false, "enable verbose mode")
 			},
-		})
+		}, rl)
 
 		app.AddCommand(&grumble.Command{
 			Name:    "daemon",
@@ -52,7 +52,8 @@ func main() {
 		}
 		app.AddCommand(adminCommand)
 
-		app.RunWithReadline(rl)
+		app.Println("Welcome to remote shell, type <help> to get list of commands")
+		app.Run()
 	}
 
 	cfg := &readline.Config{}
