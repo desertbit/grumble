@@ -17,7 +17,7 @@ an **integrated interactive shell**, if the application is started without any c
 Create a grumble APP.
 
 ```go
-var app = grumble.New(&grumble.Config{
+var app, err = grumble.New(&grumble.Config{
 	Name:        "app",
 	Description: "short app description",
 
@@ -26,6 +26,10 @@ var app = grumble.New(&grumble.Config{
 		f.Bool("v", "verbose", false, "enable verbose mode")
 	},
 })
+// it might produce an error while creating readline instance.
+if err != nil {
+	// handle error
+}
 ```
 
 Register a top-level command. *Note: Sub commands are also supported...*
@@ -86,24 +90,26 @@ If you need to pass a flag-like value as positional argument, you can do so by u
 `>>> command --flag1=something -- --myPositionalArg`
 
 ## Remote shell access with readline
-By calling RunWithReadline() rather than Run() you can pass instance of readline.Instance. 
+Beside grumble.New() you can use a different factory method, grumble.NewWithReadline() that accepts 
+readline.Instance as an additional parameter.
+
 One of interesting usages is having a possibility of remote access to your shell:
 
 ```go
 handleFunc := func(rl *readline.Instance) {
 
-    var app = grumble.New(&grumble.Config{
+    var app = grumble.NewWithReadline(&grumble.Config{
         // override default interrupt handler to avoid remote shutdown
         InterruptHandler: func(a *grumble.App, count int) {
             // do nothing
         },
 		
         // your usual grumble configuration
-    })  
+    }, rl)  
     
     // add commands
 	
-    app.RunWithReadline(rl)
+    app.Run()
 
 }
 
@@ -111,7 +117,7 @@ cfg := &readline.Config{}
 readline.ListenRemote("tcp", ":5555", cfg, handleFunc)
 ```
 
-In the client code just use readline built in DialRemote function:
+In the client code just use readline built-in DialRemote function:
 
 ```go
 if err := readline.DialRemote("tcp", ":5555"); err != nil {
