@@ -236,6 +236,15 @@ func (a *App) addCommand(cmd *Command, addHelpFlag bool) {
 
 // RunCommand runs a single command.
 func (a *App) RunCommand(args []string) error {
+	if a.config.CommandPreProc != nil {
+		var err error
+
+		args, err = a.config.CommandPreProc(args)
+		if err != nil {
+			return fmt.Errorf("command preprocessor failed - %w", err)
+		}
+	}
+
 	// Parse the arguments string and obtain the command path to the root,
 	// and the command flags.
 	cmds, fg, args, err := a.commands.parse(args, a.flagMap, false)
