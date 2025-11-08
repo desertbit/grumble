@@ -74,8 +74,23 @@ type Config struct {
 	HelpSubCommands       bool
 	HelpHeadlineColor     *color.Color
 
-	// Override default iterrupt handler
+	// Override default iterrupt handler.
 	InterruptHandler func(a *App, count int)
+
+	// CommandPreProc is an optional function that allows callers
+	// to modify the command string and its arguments prior to
+	// looking up the command code and executing it. This field
+	// is useful for implementing variable replacement using
+	// functionality like os.Expand (ps: "PreProc" here means
+	// "preprocessor").
+	//
+	// This function receives the list of strings typed by the user
+	// and returns the new list of strings to use in the RunCommand
+	// method. An optional error can be returned as well which will
+	// stop the command from being executed.
+	//
+	// This field is ignored if it is nil.
+	CommandPreProc func(args []string) ([]string, error)
 }
 
 // SetDefaults sets the default values if not set.
