@@ -244,11 +244,7 @@ func (f *Flags) IntL(long string, defaultValue int, help string) {
 // Int registers an int flag.
 func (f *Flags) Int(short, long string, defaultValue int, help string) {
 	f.register(short, long, help, "int", defaultValue, false, func(value string) (interface{}, error) {
-		v, err := strconv.ParseInt(value, 10, 0)
-		if err != nil {
-			return nil, err
-		}
-		return int(v), nil
+		return strToInt(value)
 	})
 }
 
@@ -260,11 +256,7 @@ func (f *Flags) Int8L(long string, defaultValue int8, help string) {
 // Int8 registers an int8 flag.
 func (f *Flags) Int8(short, long string, defaultValue int8, help string) {
 	f.register(short, long, help, "int8", defaultValue, false, func(value string) (interface{}, error) {
-		v, err := strconv.ParseInt(value, 10, 8)
-		if err != nil {
-			return nil, err
-		}
-		return int8(v), nil
+		return strToInt8(value)
 	})
 }
 
@@ -276,11 +268,7 @@ func (f *Flags) Int16L(long string, defaultValue int16, help string) {
 // Int16 registers an int16 flag.
 func (f *Flags) Int16(short, long string, defaultValue int16, help string) {
 	f.register(short, long, help, "int16", defaultValue, false, func(value string) (interface{}, error) {
-		v, err := strconv.ParseInt(value, 10, 16)
-		if err != nil {
-			return nil, err
-		}
-		return int16(v), nil
+		return strToInt16(value)
 	})
 }
 
@@ -292,11 +280,7 @@ func (f *Flags) Int32L(long string, defaultValue int32, help string) {
 // Int32 registers an int32 flag.
 func (f *Flags) Int32(short, long string, defaultValue int32, help string) {
 	f.register(short, long, help, "int32", defaultValue, false, func(value string) (interface{}, error) {
-		v, err := strconv.ParseInt(value, 10, 32)
-		if err != nil {
-			return nil, err
-		}
-		return int32(v), nil
+		return strToInt32(value)
 	})
 }
 
@@ -308,7 +292,7 @@ func (f *Flags) Int64L(long string, defaultValue int64, help string) {
 // Int64 registers an int64 flag.
 func (f *Flags) Int64(short, long string, defaultValue int64, help string) {
 	f.register(short, long, help, "int64", defaultValue, false, func(value string) (interface{}, error) {
-		return strconv.ParseInt(value, 10, 64)
+		return strToInt64(value)
 	})
 }
 
@@ -320,11 +304,7 @@ func (f *Flags) UintL(long string, defaultValue uint, help string) {
 // Uint registers an uint flag.
 func (f *Flags) Uint(short, long string, defaultValue uint, help string) {
 	f.register(short, long, help, "uint", defaultValue, false, func(value string) (interface{}, error) {
-		v, err := strconv.ParseUint(value, 10, 0)
-		if err != nil {
-			return nil, err
-		}
-		return uint(v), nil
+		return strToUint(value)
 	})
 }
 
@@ -336,11 +316,7 @@ func (f *Flags) Uint8L(long string, defaultValue uint8, help string) {
 // Uint8 registers an uint8 flag.
 func (f *Flags) Uint8(short, long string, defaultValue uint8, help string) {
 	f.register(short, long, help, "uint8", defaultValue, false, func(value string) (interface{}, error) {
-		v, err := strconv.ParseUint(value, 10, 8)
-		if err != nil {
-			return nil, err
-		}
-		return uint8(v), nil
+		return strToUint8(value)
 	})
 }
 
@@ -352,11 +328,7 @@ func (f *Flags) Uint16L(long string, defaultValue uint16, help string) {
 // Uint16 registers an uint16 flag.
 func (f *Flags) Uint16(short, long string, defaultValue uint16, help string) {
 	f.register(short, long, help, "uint16", defaultValue, false, func(value string) (interface{}, error) {
-		v, err := strconv.ParseUint(value, 10, 16)
-		if err != nil {
-			return nil, err
-		}
-		return uint16(v), nil
+		return strToUint16(value)
 	})
 }
 
@@ -368,11 +340,7 @@ func (f *Flags) Uint32L(long string, defaultValue uint32, help string) {
 // Uint32 registers an uint32 flag.
 func (f *Flags) Uint32(short, long string, defaultValue uint32, help string) {
 	f.register(short, long, help, "uint32", defaultValue, false, func(value string) (interface{}, error) {
-		v, err := strconv.ParseUint(value, 10, 32)
-		if err != nil {
-			return nil, err
-		}
-		return uint32(v), nil
+		return strToUint32(value)
 	})
 }
 
@@ -384,7 +352,7 @@ func (f *Flags) Uint64L(long string, defaultValue uint64, help string) {
 // Uint64 registers an uint64 flag.
 func (f *Flags) Uint64(short, long string, defaultValue uint64, help string) {
 	f.register(short, long, help, "uint64", defaultValue, false, func(value string) (interface{}, error) {
-		return strconv.ParseUint(value, 10, 64)
+		return strToUint64(value)
 	})
 }
 
