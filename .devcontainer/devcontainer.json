@@ -1,0 +1,8 @@
+{
+  "name": "dev-grumble",
+  "runArgs": ["--name=dev-grumble"],
+  "build": {
+    "dockerfile": "Containerfile",
+  },
+  "containerUser": "dev",
+}
