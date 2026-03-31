@@ -1,0 +1,26 @@
+FROM golang:1-alpine
+
+# Install dependencies.
+RUN apk add --no-cache \
+    bash \
+    bash-completion \
+    ca-certificates \
+    git \
+    git-lfs \
+    nano
+
+# Create non-root user.
+RUN addgroup -S -g 1000 dev && adduser -S -u 1000 dev -G dev -s /bin/bash
+USER dev
+
+ENV GOPATH=/home/dev/go
+ENV PATH=$PATH:/home/dev/go/bin:/home/dev/.local/bin
+
+# Install Go dev tools:
+#   gopls        → Go language server (Zed LSP)
+#   dlv          → Delve debugger
+#   staticcheck  → static analysis / linter
+RUN go install golang.org/x/tools/gopls@latest && \
+    go install github.com/go-delve/delve/cmd/dlv@latest && \
+    go install honnef.co/go/tools/cmd/staticcheck@latest && \
+    go clean -cache -modcache

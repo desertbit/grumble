@@ -227,44 +227,15 @@ func (f *Flags) StringListL(long string, defaultValue []string, help string) {
 
 // StringList registers a string list flag.
 func (f *Flags) StringList(short, long string, defaultValue []string, help string) {
-	f.register(short, long, help, "stringList", true, defaultValue,
-		func(res FlagMap) {
-			// Parse default values.
-			res[long] = &FlagMapItem{
-				Value:     make([]interface{}, len(defaultValue)),
-				IsDefault: true,
-			}
-			for i, v := range defaultValue {
-				res[long].Value.([]interface{})[i] = v
-			}
+	// Convert []string default to []interface{} so FlagMap.StringList() can assert it.
+	def := make([]interface{}, len(defaultValue))
+	for i, v := range defaultValue {
+		def[i] = v
+	}
 
-		},
-		func(flag, equalVal string, args []string, res FlagMap) ([]string, bool, error) {
-			// Parse user input.
-			if !f.match(flag, short, long) {
-				return args, false, nil
-			}
-
-			// Handle the case where the flas is provided with an equal sign
-			// of the form --flag=value
-			if len(equalVal) > 0 {
-				if res[long] == nil {
-					res[long] = &FlagMapItem{Value: make([]interface{}, 0)}
-				}
-				res[long].Value = append(res[long].Value.([]interface{}), trimQuotes(equalVal))
-				return args, true, nil
-			}
-			if len(args) == 0 {
-				return args, false, fmt.Errorf("missing string value for flag: %s", flag)
-			}
-			if res[long] == nil {
-				res[long] = &FlagMapItem{Value: make([]interface{}, 0)}
-			}
-			res[long].Value = append(res[long].Value.([]interface{}), args[0])
-
-			args = args[1:]
-			return args, true, nil
-		})
+	f.register(short, long, help, "stringList", def, false, func(value string) (interface{}, error) {
+		return []interface{}{trimQuotes(value)}, nil
+	})
 }
 
 // BoolL same as Bool, but without a shorthand.
