@@ -171,12 +171,6 @@ ParseLoop:
 
 					flagValue = args[0]
 					args = args[1:] // Pop the consumed argument.
-				} else if fi.allowEmptyValue && len(args) > 0 && !strings.HasPrefix(args[0], "-") {
-					// Special check for flags that allow empty values, as the next argument can only
-					// be the value for case 2, if it does not start with a hyphen, as that would be
-					// the next flag or delimiter between flags and positional arguments '--'.
-					flagValue = args[0]
-					args = args[1:] // Pop the consumed argument.
 				}
 
 				// Run the parser of this flag against the provided value.

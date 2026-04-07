@@ -250,12 +250,15 @@ func TestFlagBoolParse(t *testing.T) {
 		}
 	})
 
-	t.Run("value false as next arg", func(t *testing.T) {
+	t.Run("value false as next arg becomes positional", func(t *testing.T) {
 		f := &Flags{}
 		f.Bool("b", "verbose", false, "help")
-		_, res := mustParse(t, f, []string{"--verbose", "false"})
-		if v := res.Bool("verbose"); v {
-			t.Fatal("expected false")
+		left, res := mustParse(t, f, []string{"--verbose", "false"})
+		if v := res.Bool("verbose"); !v {
+			t.Fatal("expected true (bare --verbose should set true)")
+		}
+		if !reflect.DeepEqual(left, []string{"false"}) {
+			t.Fatalf("expected [false] leftover, got %v", left)
 		}
 	})
 
